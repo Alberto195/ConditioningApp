@@ -1,20 +1,33 @@
 package com.example.conditioning511.data.core.repositories
 
+import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.work.CoroutineWorker
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.example.conditioning511.data.core.api_service.ScriptListApi
 import com.example.conditioning511.data.core.models.ScriptDetailsModel
 import com.example.conditioning511.data.core.models.ScriptGeneralInfoModel
 import com.example.conditioning511.data.core.storage.UserScriptStorageDatabase
+import com.example.conditioning511.data.core.storage.UserStorageSharedPreference
 import com.example.conditioning511.data.core.storage.db.models.ScriptDetailsDbModel
 import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
+import com.example.conditioning511.data.core.workers.ScriptWorker
+import com.example.conditioning511.data.di.ContextModule
 import com.example.conditioning511.domain.core.models.Script
 import com.example.conditioning511.domain.core.models.ScriptIdDetailsModel
 import com.example.conditioning511.domain.core.models.SensorIdModel
+import com.example.conditioning511.domain.core.models.UserInitModel
 import com.example.conditioning511.domain.core.repositories.ScriptListRepository
+import java.util.concurrent.TimeUnit
 import kotlin.reflect.full.memberProperties
 
 class ScriptListRepositoryImpl(
     private val api: ScriptListApi,
-    private val userScriptStorageDatabase: UserScriptStorageDatabase
+    private val userScriptStorageDatabase: UserScriptStorageDatabase,
+    private val userStorageSharedPreference: UserStorageSharedPreference,
+    private val context: Context
 ) : ScriptListRepository {
 
     override suspend fun setScriptGeneralInfo(scripts: List<Script>?) {
@@ -34,10 +47,26 @@ class ScriptListRepositoryImpl(
         return scriptDetails.body()
     }
 
-    override suspend fun insertDetailedScript(script: ScriptDetailsModel) {
+    override suspend fun insertDetailedScript(script: ScriptDetailsModel?) {
         userScriptStorageDatabase.insertDetailedScript(
-            script.mapToStorage()
+            script?.mapToStorage()
         )
+    }
+
+    override suspend fun getUser(): UserInitModel {
+        return UserInitModel(
+            init = userStorageSharedPreference.getUser()
+        )
+    }
+
+    override suspend fun setUser(init: UserInitModel) {
+        userStorageSharedPreference.setUser(init.init)
+    }
+
+    override suspend fun initScriptWorker(): LiveData<WorkInfo> {
+        val work = PeriodicWorkRequestBuilder<ScriptWorker>(15, TimeUnit.MINUTES).build()
+        WorkManager.getInstance(context).enqueue(work)
+        return WorkManager.getInstance(context).getWorkInfoByIdLiveData(work.id)
     }
 
 

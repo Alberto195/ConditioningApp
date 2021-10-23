@@ -1,8 +1,6 @@
 package com.example.conditioning511.data.core.models
 
-
 import com.google.gson.annotations.SerializedName
-
 
 data class ScriptGeneralInfoModel(
     @SerializedName("scriptList")
