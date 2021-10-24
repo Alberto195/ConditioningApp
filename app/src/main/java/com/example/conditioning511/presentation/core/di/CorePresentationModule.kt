@@ -4,13 +4,14 @@ import com.example.conditioning511.domain.core.repositories.ScriptListRepository
 import com.example.conditioning511.domain.core.usecases.*
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.DefineComponent
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object CorePresentationModule {
+class CorePresentationModule {
 
     @Singleton
     @Provides

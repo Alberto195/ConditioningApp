@@ -6,8 +6,7 @@ import com.example.conditioning511.data.core.storage.UserStorageSharedPreference
 class UserStorageSharedPrefImpl(
     context: Context
 ) : UserStorageSharedPreference {
-
-    private var mPreferences = context.getSharedPreferences(NAME_PREF, Context.MODE_PRIVATE)
+    private val mPreferences = context.getSharedPreferences(NAME_PREF, Context.MODE_PRIVATE)
 
     override fun getUser(): Boolean {
         return mPreferences.getBoolean(INIT_USER, false)

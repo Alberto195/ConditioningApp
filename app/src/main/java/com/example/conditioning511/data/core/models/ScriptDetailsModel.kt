@@ -1,6 +1,7 @@
 package com.example.conditioning511.data.core.models
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class ScriptDetailsModel(
     @SerializedName("did")

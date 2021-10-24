@@ -11,9 +11,8 @@ import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfo
 @Dao
 interface RoomDao {
     @Insert
-    @JvmSuppressWildcards
-    fun insertAllGeneralInfoScripts(scripts: List<ScriptGeneralInfoDbModel>?)
+    suspend fun insertAllGeneralInfoScripts(scripts: List<ScriptGeneralInfoDbModel>?)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertScript(script: ScriptDetailsDbModel?)
+    suspend fun insertScript(script: ScriptDetailsDbModel?)
 }

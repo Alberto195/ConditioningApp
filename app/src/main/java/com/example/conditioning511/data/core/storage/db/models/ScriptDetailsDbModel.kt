@@ -3,18 +3,18 @@ package com.example.conditioning511.data.core.storage.db.models
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
-import java.io.Serializable
 
 @Entity(tableName = "script_details")
 data class ScriptDetailsDbModel(
-    @PrimaryKey(autoGenerate = false)
+    @PrimaryKey
     val did: Int,
     @ColumnInfo
     val name: String,
     @ColumnInfo
-    val roomGroups: RoomGroups
-) : Serializable {
+    val roomGroups: RoomGroups,
+) {
     data class RoomGroups(
         @ColumnInfo
         val dayGroups: List<DayGroup>,
