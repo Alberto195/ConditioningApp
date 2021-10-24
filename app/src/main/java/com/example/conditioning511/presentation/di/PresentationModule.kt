@@ -1,4 +1,4 @@
-package com.example.conditioning511.presentation.core.di
+package com.example.conditioning511.presentation.di
 
 import com.example.conditioning511.domain.core.repositories.ScriptListRepository
 import com.example.conditioning511.domain.core.usecases.*
@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object CorePresentationModule {
+object PresentationModule {
 
     @Singleton
     @Provides

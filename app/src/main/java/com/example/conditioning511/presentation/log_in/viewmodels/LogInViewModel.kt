@@ -1,4 +1,8 @@
 package com.example.conditioning511.presentation.log_in.viewmodels
 
-class LogInViewModel {
+import androidx.lifecycle.ViewModel
+
+class LogInViewModel(
+
+) : ViewModel() {
 }
