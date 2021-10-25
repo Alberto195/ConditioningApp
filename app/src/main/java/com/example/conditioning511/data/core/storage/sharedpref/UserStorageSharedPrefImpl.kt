@@ -2,8 +2,10 @@ package com.example.conditioning511.data.core.storage.sharedpref
 
 import android.content.Context
 import com.example.conditioning511.data.core.storage.UserStorageSharedPreference
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class UserStorageSharedPrefImpl(
+class UserStorageSharedPrefImpl @Inject constructor(
     context: Context
 ) : UserStorageSharedPreference {
     private val mPreferences = context.getSharedPreferences(NAME_PREF, Context.MODE_PRIVATE)

@@ -6,6 +6,7 @@ import androidx.work.WorkerParameters
 import com.example.conditioning511.domain.core.models.ScriptIdDetailsModel
 import com.example.conditioning511.domain.core.models.SensorIdModel
 import com.example.conditioning511.domain.core.repositories.ScriptListRepository
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -24,11 +25,12 @@ class ScriptWorker(
                 scIdList?.forEach {
                     val script = repository.getScriptDetails(
                         ScriptIdDetailsModel(
-                            sc_id = it.scId,
+                            scId = it.scId,
                             sensorId = ""
                         )
                     )
-                    repository.insertDetailedScript(script)
+                    val jsonScript = Gson().toJson(script)
+                    repository.insertDetailedScript(jsonScript)
                 }
             }
             Result.success()

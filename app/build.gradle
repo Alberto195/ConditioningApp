@@ -61,9 +61,6 @@ apply plugin: 'kotlin-kapt'
 dependencies {
 
     def room_version = "2.2.6"
-    def nav_version = "2.3.5"
-    def work_version = "2.5.0"
-    def moshi_version = "1.12.0"
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
@@ -102,7 +99,9 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.1"
 
-    implementation("androidx.compose.compiler:compiler:1.0.4")
+    implementation "androidx.compose.compiler:compiler:$compose_version"
+    implementation "androidx.compose.runtime:runtime:$compose_version"
+
 
     //Dagger - Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"
@@ -114,5 +113,4 @@ dependencies {
 
     // worker
     implementation "androidx.work:work-runtime-ktx:2.7.0"
-
 }

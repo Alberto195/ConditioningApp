@@ -3,7 +3,7 @@ package com.example.conditioning511.data.core.storage.db
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
-import com.example.conditioning511.data.core.storage.db.models.ScriptDetailsDbModel
+import com.example.conditioning511.data.core.storage.db.models.ScriptDetailsDbJsonModel
 import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
 
 
@@ -11,8 +11,8 @@ import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfo
 @Dao
 interface RoomDao {
     @Insert
-    suspend fun insertAllGeneralInfoScripts(scripts: List<ScriptGeneralInfoDbModel>?)
+    suspend fun insertAllGeneralInfoScripts(scripts: List<ScriptGeneralInfoDbModel>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertScript(script: ScriptDetailsDbModel?)
+    suspend fun insertScript(script: ScriptDetailsDbJsonModel)
 }

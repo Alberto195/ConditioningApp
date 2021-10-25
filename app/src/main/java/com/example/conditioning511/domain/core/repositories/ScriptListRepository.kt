@@ -15,7 +15,7 @@ interface ScriptListRepository {
 
     suspend fun getScriptDetails(ids: ScriptIdDetailsModel?): ScriptDetailsModel?
 
-    suspend fun insertDetailedScript(script: ScriptDetailsModel?) // clean architecture ((((
+    suspend fun insertDetailedScript(script: String?) // clean architecture ((((
 
     suspend fun getUser() : UserInitModel
 

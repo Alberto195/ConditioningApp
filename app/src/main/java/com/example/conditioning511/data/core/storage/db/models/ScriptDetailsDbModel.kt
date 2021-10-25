@@ -17,11 +17,11 @@ data class ScriptDetailsDbModel(
 ) {
     data class RoomGroups(
         @ColumnInfo
-        val dayGroups: List<DayGroup>,
+        val dayGroups: DayGroups,
         @ColumnInfo
         val rIDs: List<Int>
     ) {
-        data class DayGroup(
+        data class DayGroups(
             @ColumnInfo
             val days: List<Int>,
             @ColumnInfo

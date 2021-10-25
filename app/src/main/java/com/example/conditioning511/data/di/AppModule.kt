@@ -2,7 +2,6 @@ package com.example.conditioning511.data.di
 
 import android.content.Context
 import androidx.room.Room
-import androidx.work.*
 import com.example.conditioning511.data.core.api_service.ScriptListApi
 import com.example.conditioning511.data.core.repositories.ScriptListRepositoryImpl
 import com.example.conditioning511.data.core.storage.UserScriptStorageDatabase
@@ -12,13 +11,11 @@ import com.example.conditioning511.data.core.storage.db.ScriptListRoomDatabase
 import com.example.conditioning511.data.core.storage.db.UserScriptStorageDatabaseImpl
 import com.example.conditioning511.data.core.storage.sharedpref.UserStorageSharedPrefImpl
 import com.example.conditioning511.domain.core.repositories.ScriptListRepository
-import com.example.conditioning511.presentation.core.di.CorePresentationModule
-import com.example.conditioning511.presentation.core.di.MyApplication
 import dagger.Binds
-import dagger.Component
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -44,39 +41,17 @@ class AppModule {
             .build()
             .create(ScriptListApi::class.java)
     }
-
-    @Singleton
-    @Binds
-    fun bindUserStorageSharedPreference(
-        context: Context
-    ): UserStorageSharedPreference = UserStorageSharedPrefImpl(context = context)
-
-    @Singleton
-    @Binds
-    fun bindScriptListRepository(
-        api: ScriptListApi,
-        userScriptStorageDatabase: UserScriptStorageDatabase,
-        userStorageSharedPreference: UserStorageSharedPreference,
-        context: Context
-    ): ScriptListRepository = ScriptListRepositoryImpl(
-        api = api,
-        userScriptStorageDatabase = userScriptStorageDatabase,
-        userStorageSharedPreference = userStorageSharedPreference,
-        context = context
-    )
-
 }
 
 @Module
 @InstallIn(SingletonComponent::class)
-class ContextModule(context: Context) {
-    private val mContext: Context = context
-
+class ContextModule {
     @Provides
-    fun provideContext(): Context {
-        return mContext
+    fun provideContext(
+        @ApplicationContext context: Context
+    ): Context {
+        return context
     }
-
 }
 
 @Module
@@ -102,10 +77,26 @@ class RoomDaoDb {
         return db.getRoomDao()
     }
 
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+interface RepositoryModule {
     @Singleton
     @Binds
     fun bindUserScriptStorageDatabase(
-        roomDao: RoomDao
-    ): UserScriptStorageDatabase = UserScriptStorageDatabaseImpl(roomDao = roomDao)
+        userScriptStorageDatabaseImpl: UserScriptStorageDatabaseImpl
+    ): UserScriptStorageDatabase
 
+    @Singleton
+    @Binds
+    fun bindUserStorageSharedPreference(
+        userStorageSharedPrefImpl : UserStorageSharedPrefImpl
+    ): UserStorageSharedPreference
+
+    @Singleton
+    @Binds
+    fun bindScriptListRepository(
+        scriptListRepositoryImpl: ScriptListRepositoryImpl,
+    ): ScriptListRepository
 }

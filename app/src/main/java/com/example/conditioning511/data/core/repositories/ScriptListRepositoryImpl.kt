@@ -2,7 +2,6 @@ package com.example.conditioning511.data.core.repositories
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.work.CoroutineWorker
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
@@ -14,21 +13,21 @@ import com.example.conditioning511.data.core.storage.UserStorageSharedPreference
 import com.example.conditioning511.data.core.storage.db.models.ScriptDetailsDbModel
 import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
 import com.example.conditioning511.data.core.workers.ScriptWorker
-import com.example.conditioning511.data.di.ContextModule
 import com.example.conditioning511.domain.core.models.Script
 import com.example.conditioning511.domain.core.models.ScriptIdDetailsModel
 import com.example.conditioning511.domain.core.models.SensorIdModel
 import com.example.conditioning511.domain.core.models.UserInitModel
 import com.example.conditioning511.domain.core.repositories.ScriptListRepository
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import kotlin.reflect.full.memberProperties
 
-class ScriptListRepositoryImpl(
+class ScriptListRepositoryImpl @Inject constructor(
     private val api: ScriptListApi,
     private val userScriptStorageDatabase: UserScriptStorageDatabase,
     private val userStorageSharedPreference: UserStorageSharedPreference,
     private val context: Context
-) : ScriptListRepository {
+) : @JvmSuppressWildcards ScriptListRepository {
 
     override suspend fun setScriptGeneralInfo(scripts: List<Script>?) {
         userScriptStorageDatabase.setScriptGeneralInfo(
@@ -42,15 +41,13 @@ class ScriptListRepositoryImpl(
     }
 
     override suspend fun getScriptDetails(ids: ScriptIdDetailsModel?): ScriptDetailsModel? {
-        val scriptDetails = api.getScriptDetails(ids?.sensorId?.toInt(), ids?.sc_id?.toInt())
+        val scriptDetails = api.getScriptDetails(ids?.sensorId?.toInt(), ids?.scId?.toInt())
 
         return scriptDetails.body()
     }
 
-    override suspend fun insertDetailedScript(script: ScriptDetailsModel?) {
-        userScriptStorageDatabase.insertDetailedScript(
-            script?.mapToStorage()
-        )
+    override suspend fun insertDetailedScript(script: String?) {
+        userScriptStorageDatabase.insertDetailedScript(script)
     }
 
     override suspend fun getUser(): UserInitModel {
