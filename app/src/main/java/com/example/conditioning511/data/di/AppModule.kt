@@ -10,7 +10,10 @@ import com.example.conditioning511.data.core.storage.db.RoomDao
 import com.example.conditioning511.data.core.storage.db.ScriptListRoomDatabase
 import com.example.conditioning511.data.core.storage.db.UserScriptStorageDatabaseImpl
 import com.example.conditioning511.data.core.storage.sharedpref.UserStorageSharedPrefImpl
+import com.example.conditioning511.data.rooms.api_service.RoomListApi
+import com.example.conditioning511.data.rooms.repositories.RoomRepositoryImpl
 import com.example.conditioning511.domain.core.repositories.ScriptListRepository
+import com.example.conditioning511.domain.rooms.repositories.RoomRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -41,6 +44,17 @@ class AppModule {
             .build()
             .create(ScriptListApi::class.java)
     }
+
+    @Singleton
+    @Provides
+    fun provideRoomListApi(): RoomListApi {
+        return Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(BASE_URL)
+            .build()
+            .create(RoomListApi::class.java)
+    }
+
 }
 
 @Module
@@ -99,4 +113,11 @@ interface RepositoryModule {
     fun bindScriptListRepository(
         scriptListRepositoryImpl: ScriptListRepositoryImpl,
     ): ScriptListRepository
+
+    @Singleton
+    @Binds
+    fun bindRoomListRepository(
+        roomListRepositoryImpl: RoomRepositoryImpl,
+    ): RoomRepository
+
 }
