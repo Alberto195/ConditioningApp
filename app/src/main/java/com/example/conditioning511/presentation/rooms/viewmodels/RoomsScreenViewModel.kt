@@ -21,7 +21,7 @@ class RoomsScreenViewModel(): ViewModel() {
                 rId = 5,
                 date = "Название комнаты",
                 temp = 34,
-                temp_value = 34,
+                temp_value = null,
                 co2 = 89,
                 hum = 29,
                 people = 2
@@ -30,27 +30,36 @@ class RoomsScreenViewModel(): ViewModel() {
                 rId = 5,
                 date = "Название комнаты",
                 temp = 34,
-                temp_value = 34,
-                co2 = 89,
+                temp_value = null,
+                co2 = null,
                 hum = 29,
                 people = 2
             ),
             Room(
                 rId = 1,
                 date = "Кухня",
-                temp = 24,
+                temp = 15,
                 temp_value = 34,
                 co2 = 89,
-                hum = 29,
+                hum = null,
                 people = 3
             ),
             Room(
                 rId = 5,
                 date = "Название комнаты",
-                temp = 34,
-                temp_value = 34,
+                temp = 11,
+                temp_value = null,
                 co2 = 89,
                 hum = 29,
+                people = 2
+            ),
+            Room(
+                rId = 5,
+                date = "Название комнаты",
+                temp = 12,
+                temp_value = null,
+                co2 = null,
+                hum = null,
                 people = 2
             ),
             Room(
@@ -59,18 +68,27 @@ class RoomsScreenViewModel(): ViewModel() {
                 temp = 34,
                 temp_value = 34,
                 co2 = 89,
+                hum = null,
+                people = null
+            ),
+            Room(
+                rId = 5,
+                date = "Название комнаты большое дааааа",
+                temp = 11,
+                temp_value = null,
+                co2 = 89,
                 hum = 29,
                 people = 2
             ),
             Room(
                 rId = 5,
-                date = "Название комнаты",
-                temp = 34,
-                temp_value = 34,
+                date = "Название комнаты большое дааааа",
+                temp = 11,
+                temp_value = null,
                 co2 = 89,
                 hum = 29,
                 people = 2
-            )
+            ),
         )
     }
 
