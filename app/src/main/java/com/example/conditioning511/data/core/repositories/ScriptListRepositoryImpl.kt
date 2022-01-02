@@ -20,7 +20,6 @@ import com.example.conditioning511.domain.core.models.UserInitModel
 import com.example.conditioning511.domain.core.repositories.ScriptListRepository
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.reflect.full.memberProperties
 
 class ScriptListRepositoryImpl @Inject constructor(
     private val api: ScriptListApi,
@@ -86,13 +85,4 @@ class ScriptListRepositoryImpl @Inject constructor(
             )
         }
     }
-
-    private fun ScriptDetailsModel.mapToStorage() = with(::ScriptDetailsDbModel) {
-        val propertiesByName = ScriptDetailsModel::class.memberProperties.associateBy { it.name }
-
-        callBy(args = parameters.associateWith { parameter ->
-            propertiesByName[parameter.name]?.get(this@mapToStorage)
-        })
-    }
-
 }

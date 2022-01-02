@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.conditioning511.domain.script_list.models.TestScript
+import com.example.conditioning511.presentation.script_list.ui.add_script_ui.GiveNameDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
@@ -68,25 +70,39 @@ fun ScriptList(navController: NavController) {
                 SheetContent(coroutineScope = coroutineScope, deleteState = deleteState)
             },
         ) {
-            Column(
+            Scaffold(
+                floatingActionButton = {
+                    FloatingActionButton(
+                        modifier = Modifier.offset(y = (-60).dp, x = -(10).dp),
+                        elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 8.dp),
+                        onClick = {  },
+                        contentColor = Color.White,
+                        backgroundColor = Color.Blue,
+                    ) {
+                        Icon(imageVector = Icons.Default.Add, contentDescription = "Add new script")
+                    }
+                }
             ) {
-                SearchView(textState)
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    items(filteredScripts) { filteredScript ->
-                        ScriptListItem(
-                            script = filteredScript,
-                            onItemClick = { selectedScript ->
-                                coroutineScope.launch {
-                                    if (!sheetState.isVisible) {
-                                        sheetState.show()
-                                        textField.value = TextFieldValue(selectedScript.date)
-                                    } else {
-                                        sheetState.hide()
-                                        textField.value = TextFieldValue("")
+                Column(
+                ) {
+                    SearchView(textState)
+                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                        items(filteredScripts) { filteredScript ->
+                            ScriptListItem(
+                                script = filteredScript,
+                                onItemClick = { selectedScript ->
+                                    coroutineScope.launch {
+                                        if (!sheetState.isVisible) {
+                                            sheetState.show()
+                                            textField.value = TextFieldValue(selectedScript.date)
+                                        } else {
+                                            sheetState.hide()
+                                            textField.value = TextFieldValue("")
+                                        }
                                     }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
