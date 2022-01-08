@@ -26,27 +26,34 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.conditioning511.domain.script_list.models.DayGroup
+import com.example.conditioning511.domain.script_list.models.RoomGroups
 import com.example.conditioning511.domain.script_list.models.TestScript
 import com.example.conditioning511.presentation.script_list.ui.add_script_ui.GiveNameDialog
+import com.example.conditioning511.presentation.script_list.viewmodels.ScriptListViewModel
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ScriptList(navController: NavController) {
+fun ScriptList(navController: NavController, viewModel: ScriptListViewModel) {
     val textState = remember { mutableStateOf(TextFieldValue("")) }
-    val scripts = getListOfScripts()
+    val scripts = viewModel.getListOfScripts()
     val filteredScripts: ArrayList<TestScript>
     val searchedText = textState.value.text
     val coroutineScope = rememberCoroutineScope()
     val textField = remember { mutableStateOf(TextFieldValue("")) }
+    val roomIndex = remember { mutableStateOf("") }
+    val openDialog = remember { mutableStateOf(false) }
     filteredScripts = if (searchedText.isEmpty()) {
         scripts
     } else {
         val resultList = ArrayList<TestScript>()
         for (script in scripts) {
-            if (script.scriptName.contains(searchedText.lowercase(Locale.getDefault()))
+            if (script.name.contains(searchedText.lowercase(Locale.getDefault()))
             ) {
                 resultList.add(script)
             }
@@ -57,7 +64,7 @@ fun ScriptList(navController: NavController) {
     else if (searchedText.isNotEmpty()) ResultTextWidget()
     val deleteState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-
+    GiveNameDialog(openDialog, viewModel, navController)
     ModalBottomSheetLayout(
         sheetState = deleteState,
         sheetContent = {
@@ -67,7 +74,7 @@ fun ScriptList(navController: NavController) {
         ModalBottomSheetLayout(
             sheetState = sheetState,
             sheetContent = {
-                SheetContent(coroutineScope = coroutineScope, deleteState = deleteState)
+                SheetContent(index = roomIndex.value, coroutineScope = coroutineScope, deleteState = deleteState, navController, viewModel)
             },
         ) {
             Scaffold(
@@ -75,9 +82,12 @@ fun ScriptList(navController: NavController) {
                     FloatingActionButton(
                         modifier = Modifier.offset(y = (-60).dp, x = -(10).dp),
                         elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 8.dp),
-                        onClick = {  },
+                        onClick = {
+                            openDialog.value = true
+                        },
                         contentColor = Color.White,
                         backgroundColor = Color.Blue,
+                        shape = RoundedCornerShape(50.dp)
                     ) {
                         Icon(imageVector = Icons.Default.Add, contentDescription = "Add new script")
                     }
@@ -94,7 +104,8 @@ fun ScriptList(navController: NavController) {
                                     coroutineScope.launch {
                                         if (!sheetState.isVisible) {
                                             sheetState.show()
-                                            textField.value = TextFieldValue(selectedScript.date)
+                                            roomIndex.value = selectedScript.sc_id
+                                            textField.value = TextFieldValue(selectedScript.name)
                                         } else {
                                             sheetState.hide()
                                             textField.value = TextFieldValue("")
@@ -147,9 +158,12 @@ fun ScriptsNotFound() {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SheetContent(
+    index: String,
     coroutineScope: CoroutineScope,
-    deleteState: ModalBottomSheetState
-) {
+    deleteState: ModalBottomSheetState,
+    navController: NavController,
+    viewModel: ScriptListViewModel,
+    ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -160,7 +174,15 @@ fun SheetContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(22.dp),
+                .padding(22.dp)
+                .clickable {
+                    val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+                    val jsonAdapter = moshi.adapter(RoomGroups::class.java).lenient()
+                    val userJson = jsonAdapter.toJson(viewModel.getScript(index))
+                    navController.navigate(
+                        "script/{details}".replace("{details}", userJson)
+                    )
+                },
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -261,19 +283,5 @@ fun DeleteSheetConfirm() {
 @Composable
 fun ScriptListPreview() {
     val navController = rememberNavController()
-    ScriptList(navController = navController)
-}
-
-fun getListOfScripts(): ArrayList<TestScript> {
-
-    return arrayListOf(
-        TestScript("2020", "test"),
-        TestScript("2021", "script"),
-        TestScript("2023", "script"),
-        TestScript("2035", "test"),
-        TestScript("2039", "script"),
-        TestScript("2039", "script"),
-        TestScript("2039", "script"),
-        TestScript("2039", "script"),
-    )
+    ScriptList(navController = navController, ScriptListViewModel())
 }

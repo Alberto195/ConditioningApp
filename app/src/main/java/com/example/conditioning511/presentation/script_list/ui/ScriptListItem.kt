@@ -69,14 +69,14 @@ fun ScriptListItem(
                         .wrapContentWidth()
                 ) {
                     Text(
-                        text = script.scriptName,
+                        text = script.name,
                         fontSize = 18.sp,
                         color = Color.Black,
                         modifier = Modifier
                             .padding(horizontal = 1.dp, vertical = 1.dp)
                     )
                     Text(
-                        text = script.date,
+                        text = script.is_current.toString(),
                         fontSize = 18.sp,
                         color = Color.Black,
                         modifier = Modifier
@@ -106,11 +106,11 @@ fun CountryListItemPreview() {
     val coroutineScope = rememberCoroutineScope()
     val textState = remember { mutableStateOf(TextFieldValue("")) }
 
-    ScriptListItem(script = TestScript("2020", "тестовый"), onItemClick = {
+    ScriptListItem(script = TestScript("2020", "тестовый", false), onItemClick = {
         coroutineScope.launch {
             if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
                 bottomSheetScaffoldState.bottomSheetState.expand()
-                textState.value = TextFieldValue(it.date)
+                textState.value = TextFieldValue(it.sc_id)
             } else {
                 bottomSheetScaffoldState.bottomSheetState.collapse()
                 textState.value = TextFieldValue("")

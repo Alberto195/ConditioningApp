@@ -18,7 +18,7 @@ sealed class BottomBarScreen(
     )
     object Scripts: BottomBarScreen(
         title = "Scripts",
-        route = "scripts",
+        route = "scripts_overall",
         icon = Icons.Default.Settings,
     )
     object Profile: BottomBarScreen(

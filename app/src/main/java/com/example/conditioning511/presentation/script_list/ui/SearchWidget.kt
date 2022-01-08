@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.conditioning511.R
+import com.example.conditioning511.presentation.theme.colorText
 
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -74,16 +75,7 @@ fun SearchView(state: MutableState<TextFieldValue>) {
         },
         singleLine = true,
         shape = RoundedCornerShape(100.dp),
-        colors = TextFieldDefaults.textFieldColors(
-            textColor = Color.Black,
-            cursorColor = Color.White,
-            leadingIconColor = Color.Black,
-            trailingIconColor = Color.Black,
-            backgroundColor = Color.White,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        ),
+        colors = colorText(),
         placeholder = { Text("Поиск") },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(
