@@ -1,10 +1,9 @@
 package com.example.conditioning511.presentation.core.di
 
-import com.example.conditioning511.domain.core.repositories.ScriptListRepository
+import com.example.conditioning511.domain.core.repositories.RoomDbRepository
 import com.example.conditioning511.domain.core.usecases.*
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.DefineComponent
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -16,42 +15,42 @@ class CorePresentationModule {
     @Singleton
     @Provides
     fun provideGetScriptDetailsUseCase(
-        repository: ScriptListRepository
+        repository: RoomDbRepository
     ): GetScriptDetailsUseCase = GetScriptDetailsUseCase(repository)
 
     @Singleton
     @Provides
     fun provideGetScriptGeneralInfoIseCase(
-        repository: ScriptListRepository
+        repository: RoomDbRepository
     ): GetScriptGeneralInfoIseCase = GetScriptGeneralInfoIseCase(repository)
 
     @Singleton
     @Provides
     fun provideGetUserUseCase(
-        repository: ScriptListRepository
+        repository: RoomDbRepository
     ): GetUserUseCase = GetUserUseCase(repository)
 
     @Singleton
     @Provides
     fun provideInsertDetailedScriptUseCase(
-        repository: ScriptListRepository
+        repository: RoomDbRepository
     ): InsertDetailedScriptUseCase = InsertDetailedScriptUseCase(repository)
 
     @Singleton
     @Provides
     fun provideSetScriptGeneralInfoUseCase(
-        repository: ScriptListRepository
+        repository: RoomDbRepository
     ): SetScriptGeneralInfoUseCase = SetScriptGeneralInfoUseCase(repository)
 
     @Singleton
     @Provides
     fun provideSetUserUseCase(
-        repository: ScriptListRepository
+        repository: RoomDbRepository
     ): SetUserUseCase = SetUserUseCase(repository)
 
     @Singleton
     @Provides
     fun provideInitScriptWorkerUseCase(
-        repository: ScriptListRepository
+        repository: RoomDbRepository
     ): InitScriptWorkerUseCase = InitScriptWorkerUseCase(repository)
 }

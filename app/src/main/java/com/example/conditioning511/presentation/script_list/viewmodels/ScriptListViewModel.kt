@@ -1,19 +1,31 @@
 package com.example.conditioning511.presentation.script_list.viewmodels
 
 import androidx.lifecycle.ViewModel
+import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
 import com.example.conditioning511.domain.script_list.models.DayGroup
 import com.example.conditioning511.domain.script_list.models.RoomGroups
+import com.example.conditioning511.domain.script_list.models.Script
 import com.example.conditioning511.domain.script_list.models.Setting
-import com.example.conditioning511.domain.script_list.models.TestScript
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import java.util.ArrayList
+import com.example.conditioning511.domain.script_list.usecases.GetRoomsUseCase
+import com.example.conditioning511.domain.script_list.usecases.GetScriptsUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
-class ScriptListViewModel : ViewModel() {
+class ScriptListViewModel(
+    private val getScriptsUseCase: GetScriptsUseCase,
+    private val getRoomsUseCase: GetRoomsUseCase,
+) : ViewModel() {
+
     private val _nameStateFlow = MutableStateFlow("")
     val nameStateFlow: StateFlow<String> = _nameStateFlow.asStateFlow()
+
+    private val _scripts = MutableStateFlow<List<Script>?>(null)
+    val scripts: StateFlow<List<Script>?> = _scripts.asStateFlow()
+
+    private val _roomsStateFlow = MutableStateFlow<List<Room>?>(null)
+    val roomsStateFlow: StateFlow<List<Room>?> = _roomsStateFlow.asStateFlow()
 
     private val _settingsStateFlow = MutableStateFlow(
         Setting(null, null, null, null, null, null, null, null)
@@ -57,20 +69,34 @@ class ScriptListViewModel : ViewModel() {
         }
     }
 
-    fun getListOfScripts(): ArrayList<TestScript> {
+    fun getListOfScripts() {
+        CoroutineScope(Dispatchers.IO).launch {
+            getScriptsUseCase.execute().collect {
+                _scripts.value = it
+            }
+        }
+    }
+
+    fun getListOfScriptsReal(): List<Script> {
         return arrayListOf(
-            TestScript("0", "test", true),
-            TestScript("1", "script", false),
-            TestScript("2", "script", false),
-            TestScript("3", "test", false),
-            TestScript("4", "script", false),
-            TestScript("5", "script", false),
-            TestScript("6", "script", false),
-            TestScript("7", "script", false),
+            Script(scId = "0", name = "test", isCurrent = true),
+            Script(scId = "1", name = "script", isCurrent = false),
+            Script(scId = "2", name = "script", isCurrent = false),
+            Script(scId = "3", name = "test", isCurrent = false),
+            Script(scId = "4", name = "script", isCurrent = false),
+            Script(scId = "5", name = "test", isCurrent = false),
         )
     }
 
-    fun getRooms(): ArrayList<Room> {
+    fun getRooms() {
+        CoroutineScope(Dispatchers.IO).launch {
+            getRoomsUseCase.execute().collect {
+                _roomsStateFlow.value = it
+            }
+        }
+    }
+
+    fun getRoomsReal(): ArrayList<Room> {
         return arrayListOf(
             Room(0, "Кухня"),
             Room(1, "Гостиная"),

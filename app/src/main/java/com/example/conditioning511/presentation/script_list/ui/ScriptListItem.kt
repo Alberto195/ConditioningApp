@@ -25,14 +25,15 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.conditioning511.domain.script_list.models.TestScript
+import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
+import com.example.conditioning511.domain.script_list.models.Script
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScriptListItem(
-    script: TestScript,
-    onItemClick: (TestScript) -> Unit,
+    script: Script,
+    onItemClick: (Script) -> Unit,
 ) {
     Card(
         shape = RoundedCornerShape(25),
@@ -69,14 +70,14 @@ fun ScriptListItem(
                         .wrapContentWidth()
                 ) {
                     Text(
-                        text = script.name,
+                        text = script.name ?: "",
                         fontSize = 18.sp,
                         color = Color.Black,
                         modifier = Modifier
                             .padding(horizontal = 1.dp, vertical = 1.dp)
                     )
                     Text(
-                        text = script.is_current.toString(),
+                        text = script.isCurrent.toString(),
                         fontSize = 18.sp,
                         color = Color.Black,
                         modifier = Modifier
@@ -106,11 +107,13 @@ fun CountryListItemPreview() {
     val coroutineScope = rememberCoroutineScope()
     val textState = remember { mutableStateOf(TextFieldValue("")) }
 
-    ScriptListItem(script = TestScript("2020", "тестовый", false), onItemClick = {
+    ScriptListItem(script = Script(scId = "2020", name = "тестовый",
+        isCurrent = false
+    ), onItemClick = {
         coroutineScope.launch {
             if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
                 bottomSheetScaffoldState.bottomSheetState.expand()
-                textState.value = TextFieldValue(it.sc_id)
+                textState.value = TextFieldValue(it.scId ?: "")
             } else {
                 bottomSheetScaffoldState.bottomSheetState.collapse()
                 textState.value = TextFieldValue("")

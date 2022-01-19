@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -17,13 +18,14 @@ import com.example.conditioning511.presentation.script_list.viewmodels.ScriptLis
 
 @Composable
 fun ScriptDetails(script: RoomGroups?, viewModel: ScriptListViewModel) {
+    val roomList = viewModel.roomsStateFlow.collectAsState().value
     Column {
         DaysBox(
             Icons.Default.Settings,
             "Дни недели",
             script?.dayGroups?.get(0)?.days.scriptDaysToString(),
         )
-        DaysBox(Icons.Default.Home, "Комнаты", script?.rIDs.scriptRoomsToString(viewModel))
+        DaysBox(Icons.Default.Home, "Комнаты", script?.rIDs.scriptRoomsToString(roomList))
     }
 }
 
@@ -65,12 +67,11 @@ private fun List<Int>?.scriptDaysToString(): String {
     return sb.toString()
 }
 
-private fun List<Int>?.scriptRoomsToString(viewModel: ScriptListViewModel): String {
-    val roomList = viewModel.getRooms()
+private fun List<Int>?.scriptRoomsToString(roomList: List<ScriptListViewModel.Room>?): String {
     val sb = StringBuilder()
     if (this != null) {
         for (index in this) {
-            sb.append(roomList[index].name)
+            sb.append(roomList?.get(index)?.name ?: "")
             sb.append(" ")
         }
     }

@@ -85,6 +85,8 @@ fun ChooseRoomsDialog(
 ) {
     val roomsCheckedArray = arrayListOf<Int>()
     val openChooseDatesDialog = remember { mutableStateOf(false) }
+    val roomList = viewModel.roomsStateFlow.collectAsState().value
+
     ChooseDatesDialog(openChooseDatesDialog, screenWidth, viewModel, navController)
     if (openChooseRoomsDialog.value) {
         Dialog(
@@ -114,7 +116,7 @@ fun ChooseRoomsDialog(
                     contentPadding = PaddingValues(8.dp),
                     modifier = Modifier.heightIn(0.dp, (screenWidth / 2.4).dp),
                 ) {
-                    items(viewModel.getRooms()) { room ->
+                    items(roomList ?: listOf()) { room ->
                         val checkBox = remember { mutableStateOf(false) }
                         Row {
                             Checkbox(
@@ -356,7 +358,6 @@ private fun HoursNumberPicker(screenWidth: Int, viewModel: ScriptListViewModel) 
 fun TestHoursNumberPicker() {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
-    HoursNumberPicker(screenWidth, ScriptListViewModel())
 }
 
 @Composable

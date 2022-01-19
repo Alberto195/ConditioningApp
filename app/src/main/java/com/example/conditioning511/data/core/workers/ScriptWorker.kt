@@ -5,7 +5,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.conditioning511.domain.core.models.ScriptIdDetailsModel
 import com.example.conditioning511.domain.core.models.SensorIdModel
-import com.example.conditioning511.domain.core.repositories.ScriptListRepository
+import com.example.conditioning511.domain.core.repositories.RoomDbRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 class ScriptWorker(
     appContext: Context,
     workerParams: WorkerParameters,
-    private val repository: ScriptListRepository
+    private val repository: RoomDbRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {

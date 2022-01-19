@@ -3,13 +3,16 @@ package com.example.conditioning511.data.di
 import android.content.Context
 import androidx.room.Room
 import com.example.conditioning511.data.core.api_service.ScriptListApi
-import com.example.conditioning511.data.core.repositories.ScriptListRepositoryImpl
+import com.example.conditioning511.data.core.repositories.RoomDbRepositoryImpl
 import com.example.conditioning511.data.core.storage.UserScriptStorageDatabase
 import com.example.conditioning511.data.core.storage.UserStorageSharedPreference
 import com.example.conditioning511.data.core.storage.db.RoomDao
-import com.example.conditioning511.data.core.storage.db.ScriptListRoomDatabase
+import com.example.conditioning511.data.core.storage.db.ScriptRoomDatabase
 import com.example.conditioning511.data.core.storage.db.UserScriptStorageDatabaseImpl
 import com.example.conditioning511.data.core.storage.sharedpref.UserStorageSharedPrefImpl
+import com.example.conditioning511.data.script_list.storage.ScriptStorageDatabase
+import com.example.conditioning511.data.script_list.storage.db.ScriptStorageDatabaseImpl
+import com.example.conditioning511.domain.core.repositories.RoomDbRepository
 import com.example.conditioning511.data.rooms.api_service.RoomListApi
 import com.example.conditioning511.data.rooms.repositories.RoomRepositoryImpl
 import com.example.conditioning511.domain.core.repositories.ScriptListRepository
@@ -75,10 +78,10 @@ class RoomDaoDb {
     @Provides
     fun provideScriptListRoomDatabase(
         context: Context
-    ): ScriptListRoomDatabase {
+    ): ScriptRoomDatabase {
         return Room.databaseBuilder(
             context,
-            ScriptListRoomDatabase::class.java,
+            ScriptRoomDatabase::class.java,
             "database"
         ).fallbackToDestructiveMigration().build()
     }
@@ -86,9 +89,17 @@ class RoomDaoDb {
     @Singleton
     @Provides
     fun provideRoomDao(
-        db: ScriptListRoomDatabase
+        db: ScriptRoomDatabase
     ): RoomDao {
         return db.getRoomDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideRoomDaoScriptList(
+        db: ScriptRoomDatabase
+    ): com.example.conditioning511.data.script_list.storage.db.RoomDao {
+        return db.getRoomDaoScriptList()
     }
 
 }
@@ -120,4 +131,13 @@ interface RepositoryModule {
         roomListRepositoryImpl: RoomRepositoryImpl,
     ): RoomRepository
 
+    fun bindRoomDbRepository(
+        roomDbRepositoryImpl: RoomDbRepositoryImpl,
+    ): RoomDbRepository
+
+    @Singleton
+    @Binds
+    fun bindScriptStorageDatabase(
+        scriptStorageDatabaseImpl: ScriptStorageDatabaseImpl
+    ): ScriptStorageDatabase
 }

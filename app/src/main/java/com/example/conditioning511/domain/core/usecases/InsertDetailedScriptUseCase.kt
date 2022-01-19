@@ -1,11 +1,10 @@
 package com.example.conditioning511.domain.core.usecases
 
-import com.example.conditioning511.data.core.models.ScriptDetailsModel
-import com.example.conditioning511.domain.core.repositories.ScriptListRepository
+import com.example.conditioning511.domain.core.repositories.RoomDbRepository
 import javax.inject.Inject
 
 class InsertDetailedScriptUseCase @Inject constructor(
-    private val repository: @JvmSuppressWildcards ScriptListRepository
+    private val repository: @JvmSuppressWildcards RoomDbRepository
 ) {
 
     suspend fun execute(script: String) {

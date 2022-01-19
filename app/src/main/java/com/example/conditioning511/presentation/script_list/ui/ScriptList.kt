@@ -11,10 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,9 +23,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.conditioning511.domain.script_list.models.DayGroup
+import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
 import com.example.conditioning511.domain.script_list.models.RoomGroups
-import com.example.conditioning511.domain.script_list.models.TestScript
+import com.example.conditioning511.domain.script_list.models.Script
 import com.example.conditioning511.presentation.script_list.ui.add_script_ui.GiveNameDialog
 import com.example.conditioning511.presentation.script_list.viewmodels.ScriptListViewModel
 import com.squareup.moshi.Moshi
@@ -36,26 +33,31 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.collections.ArrayList
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScriptList(navController: NavController, viewModel: ScriptListViewModel) {
+    viewModel.getListOfScripts()
+
     val textState = remember { mutableStateOf(TextFieldValue("")) }
-    val scripts = viewModel.getListOfScripts()
-    val filteredScripts: ArrayList<TestScript>
+    val scripts = viewModel.scripts.collectAsState().value
+    val filteredScripts: List<Script>
     val searchedText = textState.value.text
     val coroutineScope = rememberCoroutineScope()
     val textField = remember { mutableStateOf(TextFieldValue("")) }
     val roomIndex = remember { mutableStateOf("") }
     val openDialog = remember { mutableStateOf(false) }
     filteredScripts = if (searchedText.isEmpty()) {
-        scripts
+        scripts ?: listOf()
     } else {
-        val resultList = ArrayList<TestScript>()
-        for (script in scripts) {
-            if (script.name.contains(searchedText.lowercase(Locale.getDefault()))
-            ) {
-                resultList.add(script)
+        val resultList = ArrayList<Script>()
+        if (scripts != null) {
+            for (script in scripts) {
+                if (script.name?.contains(searchedText.lowercase(Locale.getDefault())) == true
+                ) {
+                    resultList.add(script)
+                }
             }
         }
         resultList
@@ -104,8 +106,8 @@ fun ScriptList(navController: NavController, viewModel: ScriptListViewModel) {
                                     coroutineScope.launch {
                                         if (!sheetState.isVisible) {
                                             sheetState.show()
-                                            roomIndex.value = selectedScript.sc_id
-                                            textField.value = TextFieldValue(selectedScript.name)
+                                            roomIndex.value = selectedScript.scId ?: ""
+                                            textField.value = TextFieldValue(selectedScript.name ?: "")
                                         } else {
                                             sheetState.hide()
                                             textField.value = TextFieldValue("")
@@ -176,8 +178,13 @@ fun SheetContent(
                 .fillMaxWidth()
                 .padding(22.dp)
                 .clickable {
-                    val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-                    val jsonAdapter = moshi.adapter(RoomGroups::class.java).lenient()
+                    val moshi = Moshi
+                        .Builder()
+                        .addLast(KotlinJsonAdapterFactory())
+                        .build()
+                    val jsonAdapter = moshi
+                        .adapter(RoomGroups::class.java)
+                        .lenient()
                     val userJson = jsonAdapter.toJson(viewModel.getScript(index))
                     navController.navigate(
                         "script/{details}".replace("{details}", userJson)
@@ -283,5 +290,5 @@ fun DeleteSheetConfirm() {
 @Composable
 fun ScriptListPreview() {
     val navController = rememberNavController()
-    ScriptList(navController = navController, ScriptListViewModel())
+//    ScriptList(navController = navController, ScriptListViewModel())
 }

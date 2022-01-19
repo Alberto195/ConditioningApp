@@ -6,8 +6,6 @@ import androidx.room.OnConflictStrategy
 import com.example.conditioning511.data.core.storage.db.models.ScriptDetailsDbJsonModel
 import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
 
-
-// Data Access Object
 @Dao
 interface RoomDao {
     @Insert
