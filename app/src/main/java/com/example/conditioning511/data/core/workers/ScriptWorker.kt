@@ -19,10 +19,10 @@ class ScriptWorker(
     override suspend fun doWork(): Result {
         return try {
             withContext(Dispatchers.IO) {
-                val scIdList = repository.getScriptGeneralInfo(
-                    SensorIdModel("") // did
+                val scripts = repository.getScriptGeneralInfo(
+                    SensorIdModel(0) // did
                 )
-                scIdList?.forEach {
+                scripts?.forEach {
                     val script = repository.getScriptDetails(
                         ScriptIdDetailsModel(
                             scId = it.scId,
@@ -33,10 +33,22 @@ class ScriptWorker(
                     repository.insertDetailedScript(jsonScript)
                 }
             }
+            withContext(Dispatchers.IO) {
+                val names = repository.getRoomNames(SensorIdModel(0))
+                val sortedNames = names?.sortedBy { it.rid }
+                repository.getRoomsList(
+                    com.example.conditioning511.domain.rooms.models.SensorIdModel(0) //did
+                )?.sortedBy { it.rId }
+                    ?.let { rooms ->
+                        rooms.forEachIndexed { i, room ->
+                            room.name = sortedNames?.get(i)?.name
+                        }
+                        repository.insertRoom(rooms)
+                    }
+            }
             Result.success()
         } catch (e: Error) {
             Result.failure()
         }
-
     }
 }

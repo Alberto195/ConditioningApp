@@ -39,17 +39,16 @@ import kotlin.collections.ArrayList
 @Composable
 fun ScriptList(navController: NavController, viewModel: ScriptListViewModel) {
     viewModel.getListOfScripts()
-
     val textState = remember { mutableStateOf(TextFieldValue("")) }
     val scripts = viewModel.scripts.collectAsState().value
-    val filteredScripts: List<Script>
+    val filteredScripts: List<Script>?
     val searchedText = textState.value.text
     val coroutineScope = rememberCoroutineScope()
     val textField = remember { mutableStateOf(TextFieldValue("")) }
     val roomIndex = remember { mutableStateOf("") }
     val openDialog = remember { mutableStateOf(false) }
     filteredScripts = if (searchedText.isEmpty()) {
-        scripts ?: listOf()
+        scripts
     } else {
         val resultList = ArrayList<Script>()
         if (scripts != null) {
@@ -62,8 +61,6 @@ fun ScriptList(navController: NavController, viewModel: ScriptListViewModel) {
         }
         resultList
     }
-    if (filteredScripts.isEmpty()) ScriptsNotFound()
-    else if (searchedText.isNotEmpty()) ResultTextWidget()
     val deleteState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     GiveNameDialog(openDialog, viewModel, navController)
@@ -82,39 +79,43 @@ fun ScriptList(navController: NavController, viewModel: ScriptListViewModel) {
             Scaffold(
                 floatingActionButton = {
                     FloatingActionButton(
-                        modifier = Modifier.offset(y = (-60).dp, x = -(10).dp),
+                        modifier = Modifier.offset(y = (-60).dp, x = -(10).dp).size(70.dp),
                         elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 8.dp),
                         onClick = {
                             openDialog.value = true
                         },
                         contentColor = Color.White,
-                        backgroundColor = Color.Blue,
+                        backgroundColor = Color(0xFF32C5FF),
                         shape = RoundedCornerShape(50.dp)
                     ) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "Add new script")
+                        Icon(imageVector = Icons.Default.Add, contentDescription = "Add new script", modifier = Modifier.size(45.dp))
                     }
                 }
             ) {
                 Column(
                 ) {
                     SearchView(textState)
+                    if ((filteredScripts == null) && (scripts != null)) ScriptsNotFound()
+                    else if (searchedText.isNotEmpty()) ResultTextWidget()
                     LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                        items(filteredScripts) { filteredScript ->
-                            ScriptListItem(
-                                script = filteredScript,
-                                onItemClick = { selectedScript ->
-                                    coroutineScope.launch {
-                                        if (!sheetState.isVisible) {
-                                            sheetState.show()
-                                            roomIndex.value = selectedScript.scId ?: ""
-                                            textField.value = TextFieldValue(selectedScript.name ?: "")
-                                        } else {
-                                            sheetState.hide()
-                                            textField.value = TextFieldValue("")
+                        filteredScripts?.let {
+                            items(it) { filteredScript ->
+                                ScriptListItem(
+                                    script = filteredScript,
+                                    onItemClick = { selectedScript ->
+                                        coroutineScope.launch {
+                                            if (!sheetState.isVisible) {
+                                                sheetState.show()
+                                                roomIndex.value = selectedScript.scId ?: ""
+                                                textField.value = TextFieldValue(selectedScript.name ?: "")
+                                            } else {
+                                                sheetState.hide()
+                                                textField.value = TextFieldValue("")
+                                            }
                                         }
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }
@@ -290,5 +291,5 @@ fun DeleteSheetConfirm() {
 @Composable
 fun ScriptListPreview() {
     val navController = rememberNavController()
-//    ScriptList(navController = navController, ScriptListViewModel())
+    // ScriptList(navController = navController, ScriptListViewModel())
 }

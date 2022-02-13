@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.conditioning511.R
+import com.example.conditioning511.presentation.script_list.ui.time_picker.*
 
 @Preview
 @Composable
@@ -38,7 +39,7 @@ fun MainActivityUI() {
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    NumberPicker()
+                    NumberPickerWidget()
                     HoursNumberPicker1()
                     HoursNumberPicker2()
                     HoursNumberPicker3()
@@ -53,7 +54,7 @@ fun MainActivityUI() {
 }
 
 @Composable
-private fun NumberPicker() {
+private fun NumberPickerWidget() {
     var state by remember { mutableStateOf(0) }
     NumberPicker(
         value = state,
@@ -67,7 +68,7 @@ private fun NumberPicker() {
 @Composable
 private fun HoursNumberPicker1() {
     var state by remember { mutableStateOf<Hours>(FullHours(12, 43)) }
-    HoursNumberPicker(
+    com.example.conditioning511.presentation.script_list.ui.time_picker.HoursNumberPicker(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp),
@@ -89,7 +90,7 @@ private fun HoursNumberPicker1() {
 @Composable
 private fun HoursNumberPicker2() {
     var state by remember { mutableStateOf<Hours>(AMPMHours(9, 43, AMPMHours.DayTime.PM)) }
-    HoursNumberPicker(
+    com.example.conditioning511.presentation.script_list.ui.time_picker.HoursNumberPicker(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp),
@@ -117,7 +118,7 @@ private fun HoursNumberPicker2() {
 private fun HoursNumberPicker3() {
     var state by remember { mutableStateOf<Hours>(FullHours(9, 20)) }
 
-    HoursNumberPicker(
+    com.example.conditioning511.presentation.script_list.ui.time_picker.HoursNumberPicker(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp),
@@ -146,7 +147,7 @@ private fun HoursNumberPicker3() {
 @Composable
 private fun HoursNumberPicker4() {
     var state by remember { mutableStateOf<Hours>(FullHours(11, 36)) }
-    HoursNumberPicker(
+    com.example.conditioning511.presentation.script_list.ui.time_picker.HoursNumberPicker(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp),

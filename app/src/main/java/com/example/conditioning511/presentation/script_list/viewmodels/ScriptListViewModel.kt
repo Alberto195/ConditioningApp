@@ -1,19 +1,23 @@
 package com.example.conditioning511.presentation.script_list.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
+import androidx.lifecycle.ViewModelProvider
+import com.example.conditioning511.domain.rooms.models.Room
 import com.example.conditioning511.domain.script_list.models.DayGroup
 import com.example.conditioning511.domain.script_list.models.RoomGroups
 import com.example.conditioning511.domain.script_list.models.Script
 import com.example.conditioning511.domain.script_list.models.Setting
 import com.example.conditioning511.domain.script_list.usecases.GetRoomsUseCase
 import com.example.conditioning511.domain.script_list.usecases.GetScriptsUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ScriptListViewModel(
+@HiltViewModel
+class ScriptListViewModel @Inject constructor(
     private val getScriptsUseCase: GetScriptsUseCase,
     private val getRoomsUseCase: GetRoomsUseCase,
 ) : ViewModel() {
@@ -96,22 +100,16 @@ class ScriptListViewModel(
         }
     }
 
-    fun getRoomsReal(): ArrayList<Room> {
-        return arrayListOf(
-            Room(0, "Кухня"),
-            Room(1, "Гостиная"),
-            Room(2, "Умывальня"),
-            Room(3, "Большая комната"),
-            Room(4, "Детская"),
-        )
-    }
-
     fun getScript(index: String): RoomGroups? {
         return null
     }
 
-    data class Room(
-        val id: Int,
-        val name: String
-    )
+    companion object {
+        fun provideFactory(): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return ScriptListViewModel as T
+            }
+        }
+    }
 }

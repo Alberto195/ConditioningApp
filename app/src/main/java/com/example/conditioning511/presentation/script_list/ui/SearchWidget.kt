@@ -42,10 +42,8 @@ fun SearchView(state: MutableState<TextFieldValue>) {
             state.value = value
         },
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .border(BorderStroke(2.dp, Color.Black), RoundedCornerShape(100.dp)),
-        textStyle = TextStyle(color = Color.Black, fontSize = 18.sp),
+            .fillMaxWidth(),
+        textStyle = TextStyle(color = Color(0xFF9DB8CC), fontSize = 18.sp),
         leadingIcon = {
             Icon(
                 Icons.Default.Search,
@@ -74,9 +72,8 @@ fun SearchView(state: MutableState<TextFieldValue>) {
             }
         },
         singleLine = true,
-        shape = RoundedCornerShape(100.dp),
         colors = colorText(),
-        placeholder = { Text("Поиск") },
+        placeholder = { Text("Поиск", color = Color(0xFF9DB8CC)) },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(
             onDone = {keyboardController?.hide()},

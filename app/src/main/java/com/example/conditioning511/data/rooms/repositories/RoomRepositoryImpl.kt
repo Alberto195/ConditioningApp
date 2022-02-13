@@ -26,6 +26,7 @@ class RoomRepositoryImpl @Inject constructor(
                 co2 = it.co2,
                 hum = it.hum,
                 people = it.people,
+                name = it.name
             )
         }
     }

@@ -1,4 +1,4 @@
-package com.example.conditioning511.presentation.script_list.ui.add_script_ui
+package com.example.conditioning511.presentation.script_list.ui.time_picker
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background

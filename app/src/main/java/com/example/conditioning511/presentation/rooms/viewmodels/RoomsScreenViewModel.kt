@@ -15,7 +15,8 @@ class RoomsScreenViewModel(): ViewModel() {
                 temp_value = 34,
                 co2 = 89,
                 hum = 29,
-                people = 3
+                people = 3,
+                name = "Кухня"
             ),
             Room(
                 rId = 5,
@@ -24,7 +25,8 @@ class RoomsScreenViewModel(): ViewModel() {
                 temp_value = null,
                 co2 = 89,
                 hum = 29,
-                people = 2
+                people = 2,
+                name = "Название комнаты"
             ),
             Room(
                 rId = 5,
@@ -33,7 +35,8 @@ class RoomsScreenViewModel(): ViewModel() {
                 temp_value = null,
                 co2 = null,
                 hum = 29,
-                people = 2
+                people = 2,
+                name = "Название комнаты"
             ),
             Room(
                 rId = 1,
@@ -42,7 +45,8 @@ class RoomsScreenViewModel(): ViewModel() {
                 temp_value = 34,
                 co2 = 89,
                 hum = null,
-                people = 3
+                people = 3,
+                name = "Название комнаты"
             ),
             Room(
                 rId = 5,
@@ -51,7 +55,8 @@ class RoomsScreenViewModel(): ViewModel() {
                 temp_value = null,
                 co2 = 89,
                 hum = 29,
-                people = 2
+                people = 2,
+                name = "Название комнаты"
             ),
             Room(
                 rId = 5,
@@ -60,7 +65,8 @@ class RoomsScreenViewModel(): ViewModel() {
                 temp_value = null,
                 co2 = null,
                 hum = null,
-                people = 2
+                people = 2,
+                name = "Название комнаты"
             ),
             Room(
                 rId = 5,
@@ -69,7 +75,8 @@ class RoomsScreenViewModel(): ViewModel() {
                 temp_value = 34,
                 co2 = 89,
                 hum = null,
-                people = null
+                people = null,
+                name = "Название комнаты"
             ),
             Room(
                 rId = 5,
@@ -78,7 +85,8 @@ class RoomsScreenViewModel(): ViewModel() {
                 temp_value = null,
                 co2 = 89,
                 hum = 29,
-                people = 2
+                people = 2,
+                name = "Название комнаты большое дааааа"
             ),
             Room(
                 rId = 5,
@@ -87,17 +95,9 @@ class RoomsScreenViewModel(): ViewModel() {
                 temp_value = null,
                 co2 = 89,
                 hum = 29,
-                people = 2
+                people = 2,
+                name = "Название комнаты большое дааааа"
             ),
         )
-    }
-
-    companion object {
-        fun provideFactory(): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return RoomsScreenViewModel() as T
-            }
-        }
     }
 }

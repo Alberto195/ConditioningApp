@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -12,14 +13,17 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.conditioning511.presentation.bottom_bar.ui.BottomBarScreen
 import com.example.conditioning511.presentation.bottom_bar.ui.BottomNavGraph
+import com.example.conditioning511.presentation.rooms.viewmodels.RoomsScreenViewModel
+import com.example.conditioning511.presentation.script_list.viewmodels.ScriptListViewModel
 
 @Composable
-fun MainScreen() {
+fun MainScreen(roomsViewModel: RoomsScreenViewModel, scriptListViewModel: ScriptListViewModel) {
     val navController = rememberNavController()
     Scaffold(
-        bottomBar = { BottomBar(navController = navController) }
+        bottomBar = { BottomBar(navController = navController) },
+        backgroundColor = Color(0xFFF2F7F9),
     ) {
-        BottomNavGraph(navController = navController)
+        BottomNavGraph(navController = navController, roomsViewModel, scriptListViewModel)
     }
 }
 
@@ -33,7 +37,7 @@ fun BottomBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    BottomNavigation {
+    BottomNavigation(contentColor = Color(0xFFBFD4E4), backgroundColor = Color(0xFFDDEAF3)) {
         screens.forEach { screen ->
             AddItem(screen = screen, currentDestination = currentDestination, navController = navController)
         }

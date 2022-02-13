@@ -1,32 +1,31 @@
 package com.example.conditioning511.presentation.rooms.ui
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.conditioning511.R
 import com.example.conditioning511.domain.rooms.models.Room
 import com.example.conditioning511.presentation.rooms.viewmodels.RoomsScreenViewModel
 
@@ -41,16 +40,17 @@ fun RoomItem(room: Room) {
     val openDialog = remember { mutableStateOf(false) }
     RoomDialog(openDialog, room)
     Card(
-        backgroundColor = White,
+        backgroundColor = Color(0xFFBFD4E4),
         modifier = Modifier
             .padding(16.dp)
-            .wrapContentWidth(),
+            .width(160.dp),
         elevation = 8.dp,
-        onClick = { openDialog.value = true }
+        onClick = { openDialog.value = true },
+        shape = RoundedCornerShape(8.dp)
     ) {
         Column(
             modifier = Modifier
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 8.dp, vertical = 8.dp)
                 .wrapContentWidth()
         ) {
             Row(
@@ -60,18 +60,19 @@ fun RoomItem(room: Room) {
             ) {
                 room.people?.let {
                     for (i in 1..it) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Amount of People"
+                        Image(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.people),
+                            contentDescription = "Amount of People",
+                            modifier = Modifier.padding(horizontal = 1.dp)
                         )
                     }
                 }
             }
             Text(
-                text = room.date!!,
+                text = room.name ?: "",
                 fontWeight = FontWeight.Bold,
-                fontSize = 25.sp,
-                color = Gray,
+                fontSize = 12.sp,
+                color = Color(0xFF597393),
                 textAlign = TextAlign.Left,
                 modifier = Modifier
                     .padding(8.dp)
@@ -79,54 +80,77 @@ fun RoomItem(room: Room) {
             )
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .wrapContentWidth()
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 room.temp?.let {
                     Column(
-                        modifier = Modifier.requiredWidth(32.dp)
+                        modifier = Modifier
+                            .requiredWidth(32.dp)
+                            .wrapContentHeight(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.ShoppingCart,
-                            contentDescription = "Temperature Icon"
+                        Image(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.temperature),
+                            contentDescription = "temp icon",
+                            alignment = Alignment.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
                         Text(
-                            text = it.toString(),
-                            color = Gray,
+                            text = it.toString() + "C",
+                            color = White,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(4.dp)
-                        )
-                    }
-                }
-                room.hum?.let {
-                    Column(
-                        modifier = Modifier.requiredWidth(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ThumbUp,
-                            contentDescription = "Humidity Icon"
-                        )
-                        Text(
-                            text = it.toString(),
-                            color = Gray,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(4.dp)
+                            modifier = Modifier,
+                            maxLines = 1,
                         )
                     }
                 }
                 room.co2?.let {
                     Column(
-                        modifier = Modifier.requiredWidth(32.dp)
+                        modifier = Modifier
+                            .requiredWidth(32.dp)
+                            .wrapContentHeight(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Create,
-                            contentDescription = "CO2 Icon"
+                        Image(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.co2),
+                            contentDescription = "co2 icon",
+                            alignment = Alignment.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
                         Text(
-                            text = it.toString(),
-                            color = Gray,
+                            text = it.toString() + "ppm",
+                            color = White,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(4.dp)
+                            modifier = Modifier,
+                            maxLines = 1,
+                        )
+                    }
+                }
+                room.hum?.let {
+                    Column(
+                        modifier = Modifier
+                            .requiredWidth(32.dp)
+                            .wrapContentHeight(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.humidity),
+                            contentDescription = "hum icon",
+                            alignment = Alignment.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text(
+                            text = "$it%",
+                            color = White,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier,
+                            maxLines = 1,
                         )
                     }
                 }
@@ -137,7 +161,7 @@ fun RoomItem(room: Room) {
 
 @Preview(showBackground = true)
 @Composable
-fun Preview() {
+fun RoomItemPreview() {
     RoomItem(
         Room(
             rId = 2,
@@ -146,7 +170,8 @@ fun Preview() {
             temp = 23,
             temp_value = null,
             hum = 58,
-            people = 3
+            people = 3,
+            name = "room"
         )
     )
 }
@@ -156,8 +181,8 @@ fun RowColumn(
     roomViewModel: RoomsScreenViewModel,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit = {
-        for (index in 0 until roomViewModel.getRoomsList().size) {
-            RoomItem(roomViewModel.getRoomsList()[index])
+        for (room in roomViewModel.getRoomsList()) {
+            RoomItem(room)
         }
     }
 ) {
@@ -175,7 +200,7 @@ fun RowColumn(
             var yPosition2 = 0
             var xPos = 0
             placeables.forEachIndexed { index, placeable ->
-                xPos = if (index % 2 == 1) (placeable.width * 0.93).toInt() else 0
+                xPos = if (index % 2 == 1) (placeable.width * 1.076).toInt() else placeable.width / 15
                 yPosition = if (index % 2 == 1) yPosition1 else yPosition2
                 placeable.placeRelative(x = xPos, y = yPosition)
                 if (index % 2 == 0) yPosition2 += placeable.height else yPosition1 += placeable.height

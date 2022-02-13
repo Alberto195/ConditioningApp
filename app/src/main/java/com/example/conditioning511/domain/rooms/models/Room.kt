@@ -8,4 +8,5 @@ data class Room(
     val co2: Int?,
     val hum: Int?,
     val people: Int?,
+    var name: String?
 )

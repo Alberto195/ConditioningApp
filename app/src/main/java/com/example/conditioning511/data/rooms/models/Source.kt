@@ -8,4 +8,5 @@ data class Source(
     val rid: Int,
     val temp: Int,
     val temp_valve: Int?,
+    val name: String,
 )

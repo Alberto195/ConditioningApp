@@ -10,13 +10,17 @@ import com.example.conditioning511.data.core.models.ScriptDetailsModel
 import com.example.conditioning511.data.core.models.ScriptGeneralInfoModel
 import com.example.conditioning511.data.core.storage.UserScriptStorageDatabase
 import com.example.conditioning511.data.core.storage.UserStorageSharedPreference
+import com.example.conditioning511.data.core.storage.db.models.RoomDBModel
 import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
 import com.example.conditioning511.data.core.workers.ScriptWorker
+import com.example.conditioning511.data.rooms.models.Source
 import com.example.conditioning511.domain.core.models.Script
 import com.example.conditioning511.domain.core.models.ScriptIdDetailsModel
 import com.example.conditioning511.domain.core.models.SensorIdModel
 import com.example.conditioning511.domain.core.models.UserInitModel
 import com.example.conditioning511.domain.core.repositories.RoomDbRepository
+import com.example.conditioning511.domain.rooms.models.Room
+import com.example.conditioning511.domain.rooms.models.RoomName
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -27,6 +31,27 @@ class RoomDbRepositoryImpl @Inject constructor(
     private val context: Context
 ) : @JvmSuppressWildcards RoomDbRepository {
 
+    override suspend fun getRoomsList(did: com.example.conditioning511.domain.rooms.models.SensorIdModel?): List<Room>? {
+        val scripts = api.getAllRooms(did?.did)
+        return scripts.body()?.sources.mapToRoomList()
+    }
+
+    override suspend fun insertRoom(room: List<Room>) {
+        userScriptStorageDatabase.insertRoom(
+            room.mapToDBRoomModelList()
+        )
+    }
+
+    override suspend fun getRoomNames(did: SensorIdModel): List<RoomName>? {
+        val roomNames = api.getRoomsNames(did.did)
+        return roomNames.body()?.rooms?.map {
+            RoomName(
+                name = it.name,
+                rid = it.rid
+            )
+        }
+    }
+
     override suspend fun setScriptGeneralInfo(scripts: List<Script>?) {
         userScriptStorageDatabase.setScriptGeneralInfo(
             scripts?.mapToStorageDb()
@@ -34,7 +59,7 @@ class RoomDbRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getScriptGeneralInfo(did: SensorIdModel): List<Script>? {
-        val scripts = api.getAllScripts(did.did?.toInt())
+        val scripts = api.getAllScripts(did.did)
         return scripts.body()?.mapToScript()
     }
 
@@ -81,6 +106,36 @@ class RoomDbRepositoryImpl @Inject constructor(
                 isCurrent = it.isCurrent,
                 name = it.name,
                 scId = it.scId
+            )
+        }
+    }
+
+    private fun List<Source>?.mapToRoomList(): List<Room>? {
+        return this?.map {
+            Room(
+                rId = it.rid,
+                date = it.dt,
+                temp = it.temp,
+                temp_value = it.temp_valve,
+                co2 = it.co2,
+                hum = it.hum,
+                people = it.people,
+                name = it.name,
+            )
+        }
+    }
+
+    private fun List<Room>.mapToDBRoomModelList(): List<RoomDBModel> {
+        return this.map {
+            RoomDBModel(
+                rId = it.rId,
+                date = it.date,
+                temp = it.temp,
+                temp_value = it.temp_value,
+                co2 = it.co2,
+                hum = it.hum,
+                people = it.people,
+                name = it.name,
             )
         }
     }

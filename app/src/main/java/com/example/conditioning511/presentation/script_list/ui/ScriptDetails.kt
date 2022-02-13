@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.example.conditioning511.domain.rooms.models.Room
 import com.example.conditioning511.domain.script_list.models.RoomGroups
 import com.example.conditioning511.presentation.script_list.viewmodels.ScriptListViewModel
 
@@ -67,7 +68,7 @@ private fun List<Int>?.scriptDaysToString(): String {
     return sb.toString()
 }
 
-private fun List<Int>?.scriptRoomsToString(roomList: List<ScriptListViewModel.Room>?): String {
+private fun List<Int>?.scriptRoomsToString(roomList: List<Room>?): String {
     val sb = StringBuilder()
     if (this != null) {
         for (index in this) {

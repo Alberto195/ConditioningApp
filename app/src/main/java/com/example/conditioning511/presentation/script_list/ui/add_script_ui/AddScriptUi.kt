@@ -1,5 +1,6 @@
 package com.example.conditioning511.presentation.script_list.ui.add_script_ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
@@ -26,6 +28,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.example.conditioning511.domain.script_list.models.RoomGroups
+import com.example.conditioning511.presentation.script_list.ui.time_picker.FullHours
+import com.example.conditioning511.presentation.script_list.ui.time_picker.Hours
 import com.example.conditioning511.presentation.script_list.viewmodels.ScriptListViewModel
 import com.example.conditioning511.presentation.theme.colorText
 import com.squareup.moshi.Moshi
@@ -55,17 +59,17 @@ fun GiveNameDialog(
                     text = "Новый сценарий",
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Gray
+                    color = Color(0xFFBFD4E4)
                 )
                 Text(
                     text = "Введите придуманное название",
                     fontSize = 16.sp,
-                    color = Color.Gray
+                    color = Color(0xFFBFD4E4)
                 )
                 TextField(
                     value = scriptName,
                     onValueChange = viewModel::onNameChanged,
-                    modifier = Modifier.padding(horizontal = 60.dp, vertical = 20.dp),
+                    modifier = Modifier.padding(horizontal = 40.dp, vertical = 20.dp),
                     shape = RoundedCornerShape(50.dp),
                     singleLine = true,
                     colors = colorText()
@@ -123,12 +127,12 @@ fun ChooseRoomsDialog(
                                 checked = checkBox.value,
                                 onCheckedChange = { checked ->
                                     checkBox.value = checked
-                                    if (checked) roomsCheckedArray.add(room.id)
-                                    else roomsCheckedArray.remove(room.id)
+                                    if (checked) roomsCheckedArray.add(room.rId)
+                                    else roomsCheckedArray.remove(room.rId)
                                 },
                                 modifier = Modifier.padding(3.dp),
                             )
-                            Text(room.name, modifier = Modifier.padding(16.dp))
+                            Text(room.name ?: "", modifier = Modifier.padding(16.dp))
                         }
                     }
                 }
@@ -309,9 +313,12 @@ fun DialogTemplate(
                     onClick = {
                         thisDialogState.value = false
                     },
-                    shape = RoundedCornerShape(50.dp)
+                    modifier = Modifier.size(30.dp),
+                    shape = RoundedCornerShape(50.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                    border = BorderStroke(1.dp, Brush.horizontalGradient(listOf(Color(0xFF597393), Color(0xFF597393))))
                 ) {
-                    Text("Отмена")
+                    Text("Отмена", color = Color(0xFF597393))
                 }
                 Button(
                     onClick = {
@@ -319,9 +326,10 @@ fun DialogTemplate(
                         thisDialogState.value = false
                         nextDialogState.value = true
                     },
-                    shape = RoundedCornerShape(50.dp)
+                    shape = RoundedCornerShape(50.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF32C5FF))
                 ) {
-                    Text("Продолжить")
+                    Text("Далее", color = Color.White)
                 }
             }
         }
@@ -332,7 +340,7 @@ fun DialogTemplate(
 @Composable
 private fun HoursNumberPicker(screenWidth: Int, viewModel: ScriptListViewModel) {
     var state by remember { mutableStateOf<Hours>(FullHours(12, 30)) }
-    HoursNumberPicker(
+    com.example.conditioning511.presentation.script_list.ui.time_picker.HoursNumberPicker(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp)

@@ -15,8 +15,9 @@ import com.example.conditioning511.data.script_list.storage.db.ScriptStorageData
 import com.example.conditioning511.domain.core.repositories.RoomDbRepository
 import com.example.conditioning511.data.rooms.api_service.RoomListApi
 import com.example.conditioning511.data.rooms.repositories.RoomRepositoryImpl
-import com.example.conditioning511.domain.core.repositories.ScriptListRepository
+import com.example.conditioning511.data.script_list.repositories.ScriptListRepositoryImpl
 import com.example.conditioning511.domain.rooms.repositories.RoomRepository
+import com.example.conditioning511.domain.script_list.repositories.ScriptListRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -131,6 +132,8 @@ interface RepositoryModule {
         roomListRepositoryImpl: RoomRepositoryImpl,
     ): RoomRepository
 
+    @Singleton
+    @Binds
     fun bindRoomDbRepository(
         roomDbRepositoryImpl: RoomDbRepositoryImpl,
     ): RoomDbRepository

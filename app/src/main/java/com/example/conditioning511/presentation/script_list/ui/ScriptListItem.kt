@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,26 +37,19 @@ fun ScriptListItem(
     onItemClick: (Script) -> Unit,
 ) {
     Card(
-        shape = RoundedCornerShape(25),
         modifier = Modifier
-            .height(130.dp)
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .height(100.dp)
+            .fillMaxWidth(),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .padding(10.dp)
         ) {
-            Image(
-                painter = rememberVectorPainter(image = Icons.Default.AccountCircle),
-                contentDescription = "avatar",
-                contentScale = ContentScale.Crop,            // crop the image if it's not a square
+            Box(
                 modifier = Modifier
                     .padding(vertical = 4.dp, horizontal = 28.dp)
-                    .size(56.dp)
-                    .clip(CircleShape)                       // clip to the circle shape
-                    .border(2.dp, Color.Gray, CircleShape)   // add a border (optional)
+                    .size(56.dp).clip(CircleShape).background(Color(0xFFF2F7F9))
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -72,25 +66,19 @@ fun ScriptListItem(
                     Text(
                         text = script.name ?: "",
                         fontSize = 18.sp,
-                        color = Color.Black,
+                        fontWeight = Bold,
+                        color = Color(0xFF7F8B90),
                         modifier = Modifier
                             .padding(horizontal = 1.dp, vertical = 1.dp)
                     )
                     Text(
                         text = script.isCurrent.toString(),
                         fontSize = 18.sp,
-                        color = Color.Black,
+                        color = Color(0xFF7F8B90),
                         modifier = Modifier
                             .padding(horizontal = 1.dp, vertical = 8.dp)
                     )
                 }
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "More Button",
-                    modifier = Modifier
-                        .size(30.dp)
-                        .clickable { onItemClick(script) }
-                )
             }
         }
     }

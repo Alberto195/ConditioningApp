@@ -19,5 +19,5 @@ fun ScriptListScreen(navController: NavController, viewModel: ScriptListViewMode
 @Composable
 fun ScriptListScreenPreview() {
     val navController = rememberNavController()
-    ScriptListScreen(navController = navController, viewModel = viewModel<ScriptListViewModel>())
+    ScriptListScreen(navController = navController, viewModel = viewModel())
 }

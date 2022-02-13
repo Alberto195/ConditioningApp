@@ -2,12 +2,13 @@ package com.example.conditioning511.data.core.storage.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.example.conditioning511.data.core.storage.db.models.RoomDBModel
 import com.example.conditioning511.data.core.storage.db.models.ScriptDetailsDbJsonModel
 import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
 
 @Database(
-    entities = [ScriptGeneralInfoDbModel::class, ScriptDetailsDbJsonModel::class],
-    version = 9,
+    entities = [ScriptGeneralInfoDbModel::class, ScriptDetailsDbJsonModel::class, RoomDBModel::class],
+    version = 10,
     exportSchema = false
 )
 abstract class ScriptRoomDatabase : RoomDatabase() {
