@@ -1,6 +1,5 @@
 package com.example.conditioning511.presentation.script_list.ui.add_script_ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
@@ -27,7 +25,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
-import com.example.conditioning511.domain.script_list.models.RoomGroups
+import com.example.conditioning511.data.core.models.ScriptDetailsModel
+import com.example.conditioning511.domain.script_list.models.RoomGroup
 import com.example.conditioning511.presentation.script_list.ui.time_picker.FullHours
 import com.example.conditioning511.presentation.script_list.ui.time_picker.Hours
 import com.example.conditioning511.presentation.script_list.viewmodels.ScriptListViewModel
@@ -54,7 +53,9 @@ fun GiveNameDialog(
             },
             properties = DialogProperties(usePlatformDefaultWidth = false),
         ) {
-            DialogTemplate(openGiveNameDialog, openChooseRoomsDialog, screenWidth, {}) {
+            DialogTemplate(openGiveNameDialog, screenWidth, {
+                navController.navigate("script/room_groups")
+            }) {
                 Text(
                     text = "Новый сценарий",
                     fontSize = 26.sp,
@@ -85,13 +86,15 @@ fun ChooseRoomsDialog(
     openChooseRoomsDialog: MutableState<Boolean>,
     screenWidth: Int,
     viewModel: ScriptListViewModel,
-    navController: NavController
+    navController: NavController?
 ) {
     val roomsCheckedArray = arrayListOf<Int>()
     val openChooseDatesDialog = remember { mutableStateOf(false) }
     val roomList = viewModel.roomsStateFlow.collectAsState().value
 
-    ChooseDatesDialog(openChooseDatesDialog, screenWidth, viewModel, navController)
+    if (navController != null) {
+        ChooseDatesDialog(openChooseDatesDialog, screenWidth, viewModel, navController)
+    }
     if (openChooseRoomsDialog.value) {
         Dialog(
             onDismissRequest = {
@@ -99,7 +102,7 @@ fun ChooseRoomsDialog(
             },
             properties = DialogProperties(usePlatformDefaultWidth = false),
         ) {
-            DialogTemplate(openChooseRoomsDialog, openChooseDatesDialog, screenWidth, {
+            DialogTemplate(openChooseRoomsDialog, screenWidth, {
                 viewModel.changeRids(roomsCheckedArray.toList())
             }) {
                 Text(
@@ -109,7 +112,7 @@ fun ChooseRoomsDialog(
                     color = Color.Gray
                 )
                 Text(
-                    text = "Выберите комнаты для применения настроек (предыдущие настройки будут полностью изменены)",
+                    text = "Выберите комнаты для группировки",
                     fontSize = 16.sp,
                     color = Color.Gray,
                     modifier = Modifier.width((screenWidth / 1.9).dp),
@@ -147,7 +150,7 @@ fun ChooseDatesDialog(
     openChooseDatesDialog: MutableState<Boolean>,
     screenWidth: Int,
     viewModel: ScriptListViewModel,
-    navController: NavController
+    navController: NavController?
 ) {
     val datesCheckedArray = arrayListOf<Int>()
     val openChooseTimeDialog = remember { mutableStateOf(false) }
@@ -159,7 +162,7 @@ fun ChooseDatesDialog(
             },
             properties = DialogProperties(usePlatformDefaultWidth = false),
         ) {
-            DialogTemplate(openChooseDatesDialog, openChooseTimeDialog, screenWidth, {
+            DialogTemplate(openChooseDatesDialog, screenWidth, {
                 viewModel.daysChanged(datesCheckedArray)
             }) {
                 Text(
@@ -199,7 +202,7 @@ fun ChooseTimeDialog(
     openChooseTimeDialog: MutableState<Boolean>,
     screenWidth: Int,
     viewModel: ScriptListViewModel,
-    navController: NavController
+    navController: NavController?
 ) {
     val openChooseDevicesDialog = remember { mutableStateOf(false) }
     if (openChooseTimeDialog.value) {
@@ -209,8 +212,9 @@ fun ChooseTimeDialog(
             },
             properties = DialogProperties(usePlatformDefaultWidth = false),
         ) {
-            DialogTemplate(openChooseTimeDialog, openChooseDevicesDialog, screenWidth, {
-                viewModel.updateRoomGroup()
+            DialogTemplate(openChooseTimeDialog, screenWidth, {
+//                viewModel.updateDayGroup()
+//                viewModel.updateRoomGroup()
                 seeDetails(navController, viewModel)
             }) {
                 Text(
@@ -246,7 +250,7 @@ fun ChooseDevicesDialog(openChooseDevicesDialog: MutableState<Boolean>, screenWi
             },
             properties = DialogProperties(usePlatformDefaultWidth = false),
         ) {
-            DialogTemplate(openChooseDevicesDialog, openChooseDevicesDialog, screenWidth, {}) {
+            DialogTemplate(openChooseDevicesDialog, screenWidth, {}) {
                 Text(
                     text = "Время",
                     fontSize = 26.sp,
@@ -272,7 +276,6 @@ fun ChooseDevicesDialog(openChooseDevicesDialog: MutableState<Boolean>, screenWi
 @Composable
 fun DialogTemplate(
     thisDialogState: MutableState<Boolean>,
-    nextDialogState: MutableState<Boolean>,
     screenWidth: Int,
     action: () -> Unit,
     content: @Composable () -> Unit
@@ -303,38 +306,21 @@ fun DialogTemplate(
                 )
             }
             content()
-            Row(
+            Button(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                    .padding(30.dp),
+                onClick = {
+                    action()
+                    thisDialogState.value = false
+                },
+                shape = RoundedCornerShape(50.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Gray)
             ) {
-                Button(
-                    onClick = {
-                        thisDialogState.value = false
-                    },
-                    modifier = Modifier.size(30.dp),
-                    shape = RoundedCornerShape(50.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-                    border = BorderStroke(1.dp, Brush.horizontalGradient(listOf(Color(0xFF597393), Color(0xFF597393))))
-                ) {
-                    Text("Отмена", color = Color(0xFF597393))
-                }
-                Button(
-                    onClick = {
-                        action()
-                        thisDialogState.value = false
-                        nextDialogState.value = true
-                    },
-                    shape = RoundedCornerShape(50.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF32C5FF))
-                ) {
-                    Text("Далее", color = Color.White)
-                }
+                Text("Выбрать", color = Color.White)
             }
         }
     }
-
 }
 
 @Composable
@@ -401,11 +387,11 @@ private fun getDayString(index: Int): String {
     return arrayListOf("пн", "вт", "ср", "чт", "пт", "сб", "вс")[index]
 }
 
-private fun seeDetails(navController: NavController, viewModel: ScriptListViewModel) {
+private fun seeDetails(navController: NavController?, viewModel: ScriptListViewModel) {
     val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-    val jsonAdapter = moshi.adapter(RoomGroups::class.java).lenient()
-    val userJson = jsonAdapter.toJson(viewModel.roomGroupsStateFlow.value)
-    navController.navigate(
+    val jsonAdapter = moshi.adapter(ScriptDetailsModel.RoomGroup::class.java).lenient()
+    val userJson = jsonAdapter.toJson(viewModel.roomGroupStateFlow.value?.get(viewModel.indexRoomGroupStateFlow.value))
+    navController?.navigate(
         "script/{details}".replace("{details}", userJson)
     )
 }

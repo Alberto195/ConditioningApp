@@ -1,16 +1,10 @@
 package com.example.conditioning511.presentation.script_list.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,14 +13,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
 import com.example.conditioning511.domain.script_list.models.Script
 import kotlinx.coroutines.launch
 
@@ -39,7 +30,8 @@ fun ScriptListItem(
     Card(
         modifier = Modifier
             .height(100.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onItemClick(script) },
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -49,7 +41,9 @@ fun ScriptListItem(
             Box(
                 modifier = Modifier
                     .padding(vertical = 4.dp, horizontal = 28.dp)
-                    .size(56.dp).clip(CircleShape).background(Color(0xFFF2F7F9))
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFF2F7F9))
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -88,14 +82,15 @@ fun ScriptListItem(
 @OptIn(ExperimentalMaterialApi::class)
 @Preview(showBackground = false)
 @Composable
-fun CountryListItemPreview() {
+fun ScriptListItemPreview() {
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
     )
     val coroutineScope = rememberCoroutineScope()
     val textState = remember { mutableStateOf(TextFieldValue("")) }
 
-    ScriptListItem(script = Script(scId = "2020", name = "тестовый",
+    ScriptListItem(script = Script(
+        scId = "2020", name = "тестовый",
         isCurrent = false
     ), onItemClick = {
         coroutineScope.launch {

@@ -1,9 +1,7 @@
 package com.example.conditioning511.domain.script_list.usecases
 
-import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
 import com.example.conditioning511.domain.rooms.models.Room
 import com.example.conditioning511.domain.script_list.repositories.ScriptListRepository
-import com.example.conditioning511.presentation.script_list.viewmodels.ScriptListViewModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

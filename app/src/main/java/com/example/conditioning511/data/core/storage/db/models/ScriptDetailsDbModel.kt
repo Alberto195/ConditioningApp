@@ -6,16 +6,16 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "script_details")
+@Entity(tableName = "script_details_demo")
 data class ScriptDetailsDbModel(
     @PrimaryKey
     val did: Int,
     @ColumnInfo
     val name: String,
     @ColumnInfo
-    val roomGroups: RoomGroups,
+    val roomGroups: List<RoomGroup>,
 ) {
-    data class RoomGroups(
+    data class RoomGroup(
         @ColumnInfo
         val dayGroups: DayGroups,
         @ColumnInfo

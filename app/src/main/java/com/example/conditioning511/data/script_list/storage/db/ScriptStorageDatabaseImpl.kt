@@ -1,14 +1,16 @@
 package com.example.conditioning511.data.script_list.storage.db
 
+import com.example.conditioning511.data.core.models.ScriptDetailsModel
 import com.example.conditioning511.data.core.storage.db.models.RoomDBModel
 import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
-import com.example.conditioning511.data.rooms.models.Source
 import com.example.conditioning511.data.script_list.storage.ScriptStorageDatabase
 import com.example.conditioning511.domain.rooms.models.Room
-import com.example.conditioning511.presentation.script_list.viewmodels.ScriptListViewModel
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+
 
 class ScriptStorageDatabaseImpl @Inject constructor(
     private val roomDao: RoomDao
@@ -20,6 +22,14 @@ class ScriptStorageDatabaseImpl @Inject constructor(
     override suspend fun getRooms(): Flow<List<Room>> {
         return roomDao.getRooms().map {
             it.mapToRoomList()
+        }
+    }
+
+    override suspend fun getRoomGroups(): Flow<List<ScriptDetailsModel>> {
+        return roomDao.getRoomGroups().map { list ->
+            list.map {
+                 Gson().fromJson(it.script, ScriptDetailsModel::class.java)
+            }
         }
     }
 }

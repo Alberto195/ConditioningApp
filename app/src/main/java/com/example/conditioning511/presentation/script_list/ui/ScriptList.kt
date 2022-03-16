@@ -23,8 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
-import com.example.conditioning511.domain.script_list.models.RoomGroups
+import com.example.conditioning511.domain.script_list.models.RoomGroup
 import com.example.conditioning511.domain.script_list.models.Script
 import com.example.conditioning511.presentation.script_list.ui.add_script_ui.GiveNameDialog
 import com.example.conditioning511.presentation.script_list.viewmodels.ScriptListViewModel
@@ -33,22 +32,26 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.collections.ArrayList
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ScriptList(navController: NavController, viewModel: ScriptListViewModel) {
-    viewModel.getListOfScripts()
+fun ScriptList(
+    navController: NavController,
+    viewModel: ScriptListViewModel,
+    bottomBarVisibility: MutableState<Boolean>
+) {
+    viewModel.getListOfScriptsTest()
     val textState = remember { mutableStateOf(TextFieldValue("")) }
     val scripts = viewModel.scripts.collectAsState().value
-    val filteredScripts: List<Script>?
+    val filteredScripts: List<Script>
     val searchedText = textState.value.text
     val coroutineScope = rememberCoroutineScope()
     val textField = remember { mutableStateOf(TextFieldValue("")) }
     val roomIndex = remember { mutableStateOf("") }
     val openDialog = remember { mutableStateOf(false) }
+
     filteredScripts = if (searchedText.isEmpty()) {
-        scripts
+        scripts ?: ArrayList<Script>()
     } else {
         val resultList = ArrayList<Script>()
         if (scripts != null) {
@@ -73,48 +76,52 @@ fun ScriptList(navController: NavController, viewModel: ScriptListViewModel) {
         ModalBottomSheetLayout(
             sheetState = sheetState,
             sheetContent = {
-                SheetContent(index = roomIndex.value, coroutineScope = coroutineScope, deleteState = deleteState, navController, viewModel)
+                SheetContent(
+                    index = roomIndex.value,
+                    coroutineScope = coroutineScope,
+                    deleteState = deleteState,
+                    navController,
+                    viewModel,
+                )
             },
         ) {
             Scaffold(
                 floatingActionButton = {
                     FloatingActionButton(
-                        modifier = Modifier.offset(y = (-60).dp, x = -(10).dp).size(70.dp),
+                        modifier = Modifier
+                            .offset(y = (-60).dp, x = -(10).dp)
+                            .size(60.dp),
                         elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 8.dp),
                         onClick = {
                             openDialog.value = true
                         },
                         contentColor = Color.White,
                         backgroundColor = Color(0xFF32C5FF),
-                        shape = RoundedCornerShape(50.dp)
+                        shape = RoundedCornerShape(40.dp)
                     ) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "Add new script", modifier = Modifier.size(45.dp))
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add new script",
+                            modifier = Modifier.size(45.dp)
+                        )
                     }
                 }
             ) {
                 Column(
                 ) {
                     SearchView(textState)
-                    if ((filteredScripts == null) && (scripts != null)) ScriptsNotFound()
-                    else if (searchedText.isNotEmpty()) ResultTextWidget()
+                    if (filteredScripts.isEmpty()) ScriptsNotFound()
+                    else if (filteredScripts.isNotEmpty()) ResultTextWidget()
                     LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                        filteredScripts?.let {
-                            items(it) { filteredScript ->
-                                ScriptListItem(
-                                    script = filteredScript,
-                                    onItemClick = { selectedScript ->
-                                        coroutineScope.launch {
-                                            if (!sheetState.isVisible) {
-                                                sheetState.show()
-                                                roomIndex.value = selectedScript.scId ?: ""
-                                                textField.value = TextFieldValue(selectedScript.name ?: "")
-                                            } else {
-                                                sheetState.hide()
-                                                textField.value = TextFieldValue("")
-                                            }
-                                        }
-                                    }
-                                )
+                        items(filteredScripts) { filteredScript ->
+                            ScriptListItem(
+                                script = filteredScript
+                            ) { selectedScript ->
+                                coroutineScope.launch {
+                                    sheetState.show()
+                                    roomIndex.value = selectedScript.scId ?: ""
+                                    textField.value = TextFieldValue(selectedScript.name ?: "")
+                                }
                             }
                         }
                     }
@@ -166,7 +173,7 @@ fun SheetContent(
     deleteState: ModalBottomSheetState,
     navController: NavController,
     viewModel: ScriptListViewModel,
-    ) {
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -184,11 +191,11 @@ fun SheetContent(
                         .addLast(KotlinJsonAdapterFactory())
                         .build()
                     val jsonAdapter = moshi
-                        .adapter(RoomGroups::class.java)
+                        .adapter(RoomGroup::class.java)
                         .lenient()
-                    val userJson = jsonAdapter.toJson(viewModel.getScript(index))
+                    val script = jsonAdapter.toJson(viewModel.getScript(index))
                     navController.navigate(
-                        "script/{details}".replace("{details}", userJson)
+                        "script/{details}".replace("{details}", script)
                     )
                 },
             horizontalArrangement = Arrangement.Start,

@@ -3,6 +3,7 @@ package com.example.conditioning511.data.core.workers
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.example.conditioning511.data.core.models.ScriptDetailsModel
 import com.example.conditioning511.domain.core.models.ScriptIdDetailsModel
 import com.example.conditioning511.domain.core.models.SensorIdModel
 import com.example.conditioning511.domain.core.repositories.RoomDbRepository
