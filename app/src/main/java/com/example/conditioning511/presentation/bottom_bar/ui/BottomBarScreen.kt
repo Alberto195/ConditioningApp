@@ -1,29 +1,27 @@
 package com.example.conditioning511.presentation.bottom_bar.ui
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.conditioning511.R
 
 sealed class BottomBarScreen(
     val route: String,
     val title: String,
-    val icon: ImageVector,
+    val icon: Int,
 ) {
-    object Rooms: BottomBarScreen(
-        title = "Rooms",
+    object Rooms : BottomBarScreen(
+        title = "Комнаты",
         route = "rooms",
-        icon = Icons.Default.Info,
+        icon = R.drawable.rooms_icon,
     )
-    object Scripts: BottomBarScreen(
-        title = "Scripts",
+
+    object Scripts : BottomBarScreen(
+        title = "Сценарии",
         route = "scripts_overall",
-        icon = Icons.Default.Settings,
+        icon = R.drawable.scenarios_icon,
     )
-    object Profile: BottomBarScreen(
-        title = "Profile",
+
+    object Profile : BottomBarScreen(
+        title = "Профиль",
         route = "profile",
-        icon = Icons.Default.Person,
+        icon = R.drawable.profile_icon,
     )
 }

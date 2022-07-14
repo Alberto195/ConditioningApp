@@ -1,5 +1,6 @@
 package com.example.conditioning511.presentation.rooms.ui
 
+import android.graphics.Typeface
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -13,23 +14,31 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontListFontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.content.res.ResourcesCompat
 import com.example.conditioning511.R
 import java.lang.Math.sin
 import kotlin.math.abs
@@ -38,7 +47,7 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 @Composable
-fun SmartCirclesList(map: Map<String, Int>, showDialog: MutableState<Boolean>) {
+fun SmartCirclesList(roomName: String?, map: Map<String, Int>, showDialog: MutableState<Boolean>) {
     val id = map["id"]
     val amountOfPoints = map.size - 1
     val eachAngle = (amountOfPoints - 2) * 180 / amountOfPoints
@@ -48,12 +57,13 @@ fun SmartCirclesList(map: Map<String, Int>, showDialog: MutableState<Boolean>) {
         modifier = Modifier.fillMaxSize()
     ) {
         val configuration = LocalConfiguration.current
-        val R = configuration.screenWidthDp / 1.5f
-        val r = abs(R * cos(Math.toRadians(centerAngle / 2.0)))
-        val AB = abs(2 * sqrt(R.pow(2) - r.pow(2)))
+        val Rad = configuration.screenWidthDp / 1.5f
+        val r = abs(Rad * cos(Math.toRadians(centerAngle / 2.0)))
+        val AB = abs(2 * sqrt(Rad.pow(2) - r.pow(2)))
         val y = abs(AB * sin(Math.toRadians(tangentAngle.toDouble())))
         val x = abs(AB * cos(Math.toRadians(tangentAngle.toDouble())))
-        val (tempButton, midButton, exitIcon, addIcon, substractIcon) = createRefs()
+        val (changeTempText, tempButton, midButton, exitIcon, addIcon, substractIcon, roomText) = createRefs()
+        val temp = remember { mutableStateOf(map["temp"]) }
         Icon(
             Icons.Default.Clear,
             contentDescription = "exit",
@@ -61,27 +71,59 @@ fun SmartCirclesList(map: Map<String, Int>, showDialog: MutableState<Boolean>) {
                 .size(40.dp)
                 .clickable { showDialog.value = false }
                 .constrainAs(exitIcon) {
-                    top.linkTo(parent.top, margin = 10.dp)
-                    start.linkTo(parent.start, margin = 10.dp)
+                    top.linkTo(parent.top, margin = 20.dp)
+                    start.linkTo(parent.start, margin = 20.dp)
                 },
-            tint = Color(0xFFDAE4ED)
+            tint = Color(0xFF000000)
+        )
+        Text(
+            text = roomName ?: id.toString(), color = Color.Black, fontSize = 24.sp,
+            fontFamily = FontFamily(
+                ResourcesCompat.getFont(LocalContext.current, R.font.inder) ?: Typeface.DEFAULT
+            ),
+            modifier = Modifier
+                .constrainAs(roomText) {
+                    top.linkTo(parent.top, margin = 30.dp)
+                    end.linkTo(parent.end)
+                    start.linkTo(parent.start)
+                },
+        )
+        Text(
+            text = "Изменить температуру", color = Color(0xFF2348A6), fontSize = 22.sp,
+            fontWeight = Bold,
+            fontFamily = FontFamily(
+                ResourcesCompat.getFont(LocalContext.current, R.font.inder) ?: Typeface.DEFAULT
+            ),
+            modifier = Modifier
+                .constrainAs(changeTempText) {
+                    top.linkTo(parent.top, margin = 100.dp)
+                    end.linkTo(parent.end)
+                    start.linkTo(parent.start)
+                },
         )
         Canvas(
             modifier = Modifier.fillMaxSize()
         ) {
             drawCircle(
-                Color.White, R,
+                Color(0xFF6C95FF), Rad * 1.3f,
                 Offset(size.width / 2, size.height / 2),
                 style = Stroke(width = 8f),
             )
         }
         Button(
             shape = CircleShape,
-            border = BorderStroke(3.dp, Color(0xFF0998FF)),
+            border = BorderStroke(
+                3.dp, Brush.radialGradient(
+                    colors = listOf(
+                        Color(0xFF0998FF).copy(alpha = 0.9f),
+                        Color(0xFF0998FF).copy(alpha = 0.8f),
+                    )
+                )
+            ),
             contentPadding = PaddingValues(0.dp),  //avoid the little icon
             colors = ButtonDefaults.outlinedButtonColors(
                 contentColor = Color.White,
-                backgroundColor = Color(0xFF32C5FF)
+                backgroundColor = Color(0xFF6C95FF)
             ),
             modifier = Modifier
                 .size(150.dp)
@@ -98,44 +140,52 @@ fun SmartCirclesList(map: Map<String, Int>, showDialog: MutableState<Boolean>) {
         Button(
             enabled = false,
             shape = CircleShape,
-            border = BorderStroke(2.dp, Color(0xFFEDF1F3)),
+            border = BorderStroke(2.dp, Color(0xFF6C95FF)),
             contentPadding = PaddingValues(0.dp),
             colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Color.Gray,
-                backgroundColor = Color.White
+                contentColor = Color.Black,
+                backgroundColor = Color(0xFFFFFFFF)
             ),
             modifier = Modifier
                 .size(100.dp)
                 .constrainAs(tempButton) {
                     top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom, margin = R.dp)
+                    bottom.linkTo(parent.bottom, margin = Rad.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
             onClick = { },
         ) {
-            Text(map["temp"].toString(), textAlign = TextAlign.Center, fontSize = 24.sp)
+            Text(
+                temp.value.toString(),
+                textAlign = TextAlign.Center,
+                fontSize = 28.sp,
+                color = Color(0xFFFFA65A),
+                fontWeight = Bold
+            )
         }
         Icon(
             Icons.Default.Add,
             contentDescription = "plus",
             modifier = Modifier
                 .size(40.dp)
-                .clickable { // TODO //
+                .clickable {
+                    temp.value = (temp.value ?: 0) + 1
                 }
                 .constrainAs(addIcon) {
                     top.linkTo(tempButton.top)
                     start.linkTo(tempButton.end, margin = 10.dp)
                     bottom.linkTo(tempButton.bottom)
                 },
-            tint = Color(0xFFDAE4ED)
+            tint = Color(0xFF000000)
         )
-        Icon(
-            Icons.Default.Clear,
+        Image(
+            painterResource(id = R.drawable.minus),
             contentDescription = "minus",
             modifier = Modifier
-                .size(40.dp)
-                .clickable { // TODO
+                .size(25.dp)
+                .clickable {
+                    temp.value = (temp.value ?: 0) - 1
                 }
                 .constrainAs(substractIcon) {
                     top.linkTo(tempButton.top)
@@ -150,7 +200,7 @@ fun SmartCirclesList(map: Map<String, Int>, showDialog: MutableState<Boolean>) {
         }
         for (i in 1 until amountOfPoints) {
             val ref = createRef()
-            var (marginStart, marginTop) = countMargins(i, amountOfPoints, R, x, y)
+            var (marginStart, marginTop) = countMargins(i, amountOfPoints, Rad, x, y)
             var marginEnd = 0.0
             if (marginStart < 0) {
                 marginEnd = -marginStart
@@ -159,11 +209,10 @@ fun SmartCirclesList(map: Map<String, Int>, showDialog: MutableState<Boolean>) {
             Button(
                 enabled = false,
                 shape = CircleShape,
-                border = BorderStroke(2.dp, Color(0xFFEDF1F3)),
+                border = BorderStroke(1.dp, Color(0xFF6C95FF)),
                 contentPadding = PaddingValues(0.dp),  //avoid the little icon
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color(0x00597393),
-                    backgroundColor = Color.White
+                    backgroundColor = Color(0xFFF7FDFF)
                 ),
                 modifier = Modifier
                     .size(100.dp)
@@ -179,7 +228,10 @@ fun SmartCirclesList(map: Map<String, Int>, showDialog: MutableState<Boolean>) {
                     modifier = Modifier,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    IconFromName(mMap.keys.elementAt(i-1), mMap[mMap.keys.elementAt(i-1)].toString())
+                    IconFromName(
+                        mMap.keys.elementAt(i - 1),
+                        mMap[mMap.keys.elementAt(i - 1)].toString()
+                    )
                 }
             }
         }
@@ -194,60 +246,65 @@ private fun IconFromName(name: String, text: String) {
         }
         "people" -> {
             Image(
-                imageVector = ImageVector.vectorResource(id = R.drawable.people_grey),
+                painterResource(id = R.drawable.blue_people),
                 contentDescription = "Amount of People",
-                modifier = Modifier.padding(horizontal = 1.dp)
+                modifier = Modifier.size(30.dp)
             )
             Text(
                 "$text чел",
                 textAlign = TextAlign.Center,
-                fontSize = 14.sp
+                fontSize = 18.sp,
+                color = Color.Black
             )
         }
         "co2" -> {
             Image(
-                imageVector = ImageVector.vectorResource(id = R.drawable.co2_grey),
+                painterResource(id = R.drawable.blue_co2),
                 contentDescription = "co2 icon",
                 alignment = Alignment.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.size(30.dp)
             )
             Text(
                 "$text ppm",
                 textAlign = TextAlign.Center,
-                fontSize = 14.sp
+                fontSize = 18.sp,
+                color = Color.Black
             )
         }
         "temp_value" -> {
             Image(
-                imageVector = ImageVector.vectorResource(id = R.drawable.temperature_grey),
+                painterResource(id = R.drawable.blue_temp),
                 contentDescription = "temp icon",
                 alignment = Alignment.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.size(25.dp)
             )
             Text(
                 "$text C",
                 textAlign = TextAlign.Center,
-                fontSize = 14.sp
+                fontSize = 18.sp,
+                color = Color.Black
             )
         }
         "hum" -> {
             Image(
-                imageVector = ImageVector.vectorResource(id = R.drawable.humidity_grey),
+                painterResource(id = R.drawable.blue_drop),
                 contentDescription = "hum icon",
                 alignment = Alignment.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.size(25.dp)
             )
             Text(
                 "$text%",
                 textAlign = TextAlign.Center,
-                fontSize = 14.sp
+                fontSize = 18.sp,
+                color = Color.Black
             )
         }
         else -> {
             Text(
                 text,
                 textAlign = TextAlign.Center,
-                fontSize = 14.sp
+                fontSize = 18.sp,
+                color = Color.Black
             )
         }
     }
@@ -292,71 +349,4 @@ private fun countMargins(
 @Composable
 fun SmartCirclesPreview() {
 
-}
-
-@Composable
-fun MyBasicColumn(
-    amountOfPoints: Int,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit = {
-        for (i in 0 until amountOfPoints) {
-            Button(
-                enabled = false,
-                shape = CircleShape,
-                border = BorderStroke(2.dp, Color.Gray),
-                contentPadding = PaddingValues(0.dp),  //avoid the little icon
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color.Gray,
-                    backgroundColor = Color.White
-                ),
-                modifier = Modifier.size(100.dp),
-                onClick = { },
-            ) {
-                Column(
-                    modifier = Modifier,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(Icons.Default.Star, contentDescription = "icon")
-                    Text("23.69", textAlign = TextAlign.Center, fontSize = 14.sp)
-                }
-            }
-        }
-    }
-) {
-    val eachAngle = (amountOfPoints - 2) * 180 / amountOfPoints
-    val centerAngle = 180 - eachAngle
-    val tangentAngle = centerAngle / 2f
-    val configuration = LocalConfiguration.current
-    val R = configuration.screenWidthDp / 1.5f
-    val r = abs(R * cos(Math.toRadians(centerAngle / 2.0)))
-    val AB = abs(2 * sqrt(R.pow(2) - r.pow(2)))
-    val k = (amountOfPoints - 2) * 180 / amountOfPoints
-    Layout(
-        modifier = modifier,
-        content = content
-    ) { measurables, constraints ->
-        val placeables = measurables.map { measurable ->
-            measurable.measure(constraints)
-        }
-
-        layout(
-            constraints.maxWidth,
-            constraints.maxHeight
-        ) {
-            placeables.forEachIndexed { i, placeable ->
-                val kk = if (i == amountOfPoints - 1) -60 else k * (i + 1)
-                val y =
-                    AB * sin(Math.toRadians(tangentAngle.toDouble() + kk)) + (constraints.maxHeight - constraints.maxHeight * 0.1) / 2
-                val x =
-                    AB * cos(Math.toRadians(tangentAngle.toDouble() + kk)) + (constraints.maxWidth - constraints.maxWidth * 0.2) / 2
-                placeable.placeRelative(x = x.toInt(), y = y.toInt())
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun PreviewCircles() {
-    MyBasicColumn(3)
 }

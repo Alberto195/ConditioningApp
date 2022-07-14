@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -21,10 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.conditioning511.R
 import com.example.conditioning511.data.core.models.ScriptDetailsModel
 import com.example.conditioning511.presentation.script_list.ui.add_script_ui.ChooseRoomsDialog
 import com.example.conditioning511.presentation.script_list.viewmodels.ScriptListViewModel
@@ -37,6 +39,7 @@ fun RoomGroupsScreen(viewModel: ScriptListViewModel, navController: NavControlle
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     val roomGroupsList = viewModel.roomGroupListStateFlow.collectAsState().value
+    val roomGroups = viewModel.roomGroupStateFlow.collectAsState().value
     ChooseRoomsDialog(openChooseRoomsDialog, screenWidth, viewModel, null)
 
     Column(
@@ -51,14 +54,17 @@ fun RoomGroupsScreen(viewModel: ScriptListViewModel, navController: NavControlle
                 text = scriptName,
                 color = Color.Black,
                 fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(vertical = 20.dp)
             )
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                roomGroupsList?.forEachIndexed { i, script ->
+                roomGroupsList.list?.forEachIndexed { i, script ->
                     if (script.name == scriptName) {
                         viewModel.indexRoomGroupStateFlow.value = i
-                        itemsIndexed(script.roomGroups) { ind, it ->
-                            RoomGroupItem(it, navController, viewModel, ind)
+                        roomGroups.list?.let { list ->
+                            itemsIndexed(list) { ind, it ->
+                                RoomGroupItem(it, navController, viewModel, ind)
+                            }
                         }
                     }
                 }
@@ -73,7 +79,7 @@ fun RoomGroupsScreen(viewModel: ScriptListViewModel, navController: NavControlle
                 openChooseRoomsDialog.value = true
             },
             shape = RoundedCornerShape(50.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Gray),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF6C95FF)),
         ) {
             Text("Новая группа", color = Color.White, fontSize = 18.sp)
         }
@@ -82,7 +88,12 @@ fun RoomGroupsScreen(viewModel: ScriptListViewModel, navController: NavControlle
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun RoomGroupItem(it: ScriptDetailsModel.RoomGroup, navController: NavController, viewModel: ScriptListViewModel, index: Int) {
+fun RoomGroupItem(
+    it: ScriptDetailsModel.RoomGroup,
+    navController: NavController,
+    viewModel: ScriptListViewModel,
+    index: Int
+) {
     val squareSize = 90.dp
     val swipeableState = rememberSwipeableState(1)
     val sizePx = with(LocalDensity.current) { squareSize.toPx() }
@@ -113,7 +124,7 @@ fun RoomGroupItem(it: ScriptDetailsModel.RoomGroup, navController: NavController
                     .height(70.dp)
             ) {
                 Text(
-                    it.rIDs.toString(),
+                    viewModel.nameRoomIds(it.rIDs),
                     color = Color.Black,
                     fontSize = 20.sp,
                     modifier = Modifier.offset(x = -(20).dp)
@@ -124,15 +135,16 @@ fun RoomGroupItem(it: ScriptDetailsModel.RoomGroup, navController: NavController
                         .offset(x = 25.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Icon(Icons.Default.Edit, "", modifier = Modifier
+                    Icon(
+                        painterResource(id = R.drawable.edit_icon),
+                        "", modifier = Modifier
                         .size(30.dp)
                         .clickable {
-                            viewModel.changeRids(it.rIDs)
                             viewModel.indexDayGroupStateFlow.value = index
                             navController.navigate("script/day_groups")
                         })
                     Icon(
-                        Icons.Default.Delete,
+                        painterResource(id = R.drawable.delete_icon),
                         contentDescription = "",
                         modifier = Modifier
                             .size(30.dp)

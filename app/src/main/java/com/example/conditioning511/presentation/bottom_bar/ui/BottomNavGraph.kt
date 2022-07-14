@@ -13,6 +13,7 @@ import com.example.conditioning511.presentation.script_list.ui.ScriptDetails
 import com.example.conditioning511.presentation.script_list.ui.ScriptListScreen
 import com.example.conditioning511.presentation.script_list.ui.room_groups.DateGroupsScreen
 import com.example.conditioning511.presentation.script_list.ui.room_groups.RoomGroupsScreen
+import com.example.conditioning511.presentation.script_list.ui.room_groups.SettingsArgumentsScreen
 import com.example.conditioning511.presentation.script_list.ui.room_groups.SettingsGroupScreen
 import com.example.conditioning511.presentation.script_list.viewmodels.ScriptListViewModel
 import com.squareup.moshi.Moshi
@@ -37,29 +38,28 @@ fun BottomNavGraph(
                 ScriptListScreen(navController, scriptListViewModel, interactionSource)
             }
             composable(
-                "script/{details}",
-            ) { backStackEntry ->
-                val scriptValueEncoded = backStackEntry.arguments?.getString("details")
-                val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-                val jsonAdapter = moshi.adapter(RoomGroup::class.java).lenient()
-                val scriptValues = jsonAdapter.fromJson(scriptValueEncoded ?: "")
-                ScriptDetails(scriptValues, scriptListViewModel)
-            }
-            composable(
                 "script/room_groups",
             ) {
-                scriptListViewModel.getRoomGroupListTest()
+                scriptListViewModel.getRoomGroupList()
                 RoomGroupsScreen(scriptListViewModel, navController)
             }
             composable(
                 "script/day_groups",
             ) {
+                scriptListViewModel.getUpdate()
                 DateGroupsScreen(scriptListViewModel, navController)
             }
             composable(
                 "script/settings_groups",
             ) {
+                scriptListViewModel.getUpdate()
                 SettingsGroupScreen(scriptListViewModel, navController)
+            }
+            composable(
+                "script/arguments",
+            ) {
+                scriptListViewModel.getUpdate()
+                SettingsArgumentsScreen(scriptListViewModel, navController)
             }
         }
         composable(route = BottomBarScreen.Profile.route) {

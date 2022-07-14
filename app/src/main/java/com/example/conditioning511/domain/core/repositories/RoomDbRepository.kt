@@ -17,7 +17,7 @@ interface RoomDbRepository {
 
     suspend fun getScriptDetails(ids: ScriptIdDetailsModel?): ScriptDetailsModel?
 
-    suspend fun insertDetailedScript(script: String?)
+    suspend fun insertDetailedScript(script: String?, id: Int)
 
     suspend fun getUser() : UserInitModel
 

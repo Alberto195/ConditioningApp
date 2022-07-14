@@ -69,8 +69,8 @@ class RoomDbRepositoryImpl @Inject constructor(
         return scriptDetails.body()
     }
 
-    override suspend fun insertDetailedScript(script: String?) {
-        userScriptStorageDatabase.insertDetailedScript(script)
+    override suspend fun insertDetailedScript(script: String?, id: Int) {
+        userScriptStorageDatabase.insertDetailedScript(script, id)
     }
 
     override suspend fun getUser(): UserInitModel {

@@ -32,7 +32,7 @@ fun RoomDialog(showDialog: MutableState<Boolean>, roomInfo: Room) {
                     }
                     .fillMaxWidth()
                     .fillMaxHeight()) {
-                    SmartCirclesList(map = map, showDialog)
+                    SmartCirclesList(roomName = roomInfo.name, map = map, showDialog)
                 }
             }
         }

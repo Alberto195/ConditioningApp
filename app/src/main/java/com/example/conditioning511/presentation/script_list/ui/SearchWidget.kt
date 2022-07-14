@@ -2,6 +2,7 @@ package com.example.conditioning511.presentation.script_list.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -36,49 +37,51 @@ import com.example.conditioning511.presentation.theme.colorText
 @Composable
 fun SearchView(state: MutableState<TextFieldValue>) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    TextField(
-        value = state.value,
-        onValueChange = { value ->
-            state.value = value
-        },
-        modifier = Modifier
-            .fillMaxWidth(),
-        textStyle = TextStyle(color = Color(0xFF9DB8CC), fontSize = 18.sp),
-        leadingIcon = {
-            Icon(
-                Icons.Default.Search,
-                contentDescription = "",
-                modifier = Modifier
-                    .padding(15.dp)
-                    .size(24.dp)
-            )
-        },
-        trailingIcon = {
-            if (state.value != TextFieldValue("")) {
-                IconButton(
-                    onClick = {
-                        state.value =
-                            TextFieldValue("")
+    Row {
+        TextField(
+            value = state.value,
+            onValueChange = { value ->
+                state.value = value
+            },
+            modifier = Modifier
+                .fillMaxWidth(),
+            textStyle = TextStyle(color = Color.Black, fontSize = 18.sp),
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = "",
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .size(34.dp)
+                )
+            },
+            trailingIcon = {
+                if (state.value != TextFieldValue("")) {
+                    IconButton(
+                        onClick = {
+                            state.value =
+                                TextFieldValue("")
+                        }
+                    ) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "",
+                            modifier = Modifier
+                                .padding(15.dp)
+                                .size(24.dp)
+                        )
                     }
-                ) {
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = "",
-                        modifier = Modifier
-                            .padding(15.dp)
-                            .size(24.dp)
-                    )
                 }
-            }
-        },
-        singleLine = true,
-        colors = colorText(),
-        placeholder = { Text("Поиск", color = Color(0xFF9DB8CC)) },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(
-            onDone = {keyboardController?.hide()},
-        ),
-    )
+            },
+            singleLine = true,
+            colors = colorText(),
+            placeholder = { Text("Сценарии", color = Color.Black) },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(
+                onDone = { keyboardController?.hide() },
+            ),
+        )
+    }
 }
 
 @Preview(showBackground = true)

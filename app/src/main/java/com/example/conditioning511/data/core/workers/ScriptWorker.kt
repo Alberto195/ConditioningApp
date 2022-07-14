@@ -23,7 +23,7 @@ class ScriptWorker(
                 val scripts = repository.getScriptGeneralInfo(
                     SensorIdModel(0) // did
                 )
-                scripts?.forEach {
+                scripts?.forEachIndexed { i, it ->
                     val script = repository.getScriptDetails(
                         ScriptIdDetailsModel(
                             scId = it.scId,
@@ -31,7 +31,7 @@ class ScriptWorker(
                         )
                     )
                     val jsonScript = Gson().toJson(script)
-                    repository.insertDetailedScript(jsonScript)
+                    repository.insertDetailedScript(jsonScript, i)
                 }
             }
             withContext(Dispatchers.IO) {

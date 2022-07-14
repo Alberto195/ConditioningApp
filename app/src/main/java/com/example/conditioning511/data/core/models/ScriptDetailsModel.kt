@@ -9,7 +9,7 @@ data class ScriptDetailsModel(
     @SerializedName("name")
     val name: String,
     @SerializedName("roomGroups")
-    val roomGroups: List<RoomGroup>
+    var roomGroups: List<RoomGroup>
 ) {
     data class RoomGroup(
         @SerializedName("dayGroups")

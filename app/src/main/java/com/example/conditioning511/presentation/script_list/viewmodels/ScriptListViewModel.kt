@@ -2,25 +2,29 @@ package com.example.conditioning511.presentation.script_list.viewmodels
 
 import androidx.lifecycle.ViewModel
 import com.example.conditioning511.data.core.models.ScriptDetailsModel
+import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
 import com.example.conditioning511.domain.rooms.models.Room
-import com.example.conditioning511.domain.script_list.models.RoomGroup
 import com.example.conditioning511.domain.script_list.models.Script
-import com.example.conditioning511.domain.script_list.models.Setting
-import com.example.conditioning511.domain.script_list.usecases.GetRoomGroupsUseCase
-import com.example.conditioning511.domain.script_list.usecases.GetRoomsUseCase
-import com.example.conditioning511.domain.script_list.usecases.GetScriptsUseCase
+import com.example.conditioning511.domain.script_list.usecases.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import okhttp3.internal.wait
+import java.lang.Thread.sleep
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class ScriptListViewModel @Inject constructor(
     private val getScriptsUseCase: GetScriptsUseCase,
     private val getRoomsUseCase: GetRoomsUseCase,
-    private val getRoomGroupsUseCase: GetRoomGroupsUseCase
+    private val getRoomGroupsUseCase: GetRoomGroupsUseCase,
+    private val saveScriptDetailsUseCase: SaveScriptDetailsUseCase,
+    private val insertGeneralScriptInfoUseCase: InsertGeneralScriptInfoUseCase,
+    private val updateScriptDetailsUseCase: UpdateScriptDetailsUseCase,
+    private val clearDatabaseUseCase: ClearDatabaseUseCase,
     // TODO save new room script at every stage
     // TODO delete certain room/date/setting group
 ) : ViewModel() {
@@ -28,9 +32,19 @@ class ScriptListViewModel @Inject constructor(
     private val _nameStateFlow = MutableStateFlow("")
     val nameStateFlow: StateFlow<String> = _nameStateFlow.asStateFlow()
 
+    private val _timeStateFlow = MutableStateFlow("")
+    val timeStateFlow: StateFlow<String> = _timeStateFlow.asStateFlow()
+
+    private val _mustUseStateFlow = MutableStateFlow(listOf<Any>())
+    val mustUseStateFlow: StateFlow<List<Any>> = _mustUseStateFlow.asStateFlow()
+
+    private val _dontUseStateFlow = MutableStateFlow(listOf<Any>())
+    val dontUseStateFlow: StateFlow<List<Any>> = _dontUseStateFlow.asStateFlow()
+
     val indexRoomGroupStateFlow = MutableStateFlow(0)
     val indexDayGroupStateFlow = MutableStateFlow(0)
     val indexSettingGroupStateFlow = MutableStateFlow(0)
+    val indexArgumentsStateFlow = MutableStateFlow(0)
 
     private val _scripts = MutableStateFlow<List<Script>?>(null)
     val scripts: StateFlow<List<Script>?> = _scripts.asStateFlow()
@@ -38,67 +52,267 @@ class ScriptListViewModel @Inject constructor(
     private val _roomsStateFlow = MutableStateFlow<List<Room>?>(null)
     val roomsStateFlow: StateFlow<List<Room>?> = _roomsStateFlow.asStateFlow()
 
-    private val _settingsStateFlow = MutableStateFlow(
-        Setting(null, null, null, null, null, null, null, null)
-    )
-
-    private val _roomGroupListStateFlow = MutableStateFlow<List<ScriptDetailsModel>?>(null)
-    val roomGroupListStateFlow: StateFlow<List<ScriptDetailsModel>?> =
+    private val _roomGroupListStateFlow = MutableStateFlow(ScriptDetailList(null))
+    val roomGroupListStateFlow: StateFlow<ScriptDetailList> =
         _roomGroupListStateFlow.asStateFlow()
 
-    private val _roomGroupStateFlow = MutableStateFlow<List<ScriptDetailsModel.RoomGroup>?>(null)
-    val roomGroupStateFlow: StateFlow<List<ScriptDetailsModel.RoomGroup>?> =
+    private val _roomGroupStateFlow = MutableStateFlow(ScriptDetailsRoomGroupList(null))
+    val roomGroupStateFlow: StateFlow<ScriptDetailsRoomGroupList> =
         _roomGroupStateFlow.asStateFlow()
 
     private val _dayGroupStateFlow =
-        MutableStateFlow<List<ScriptDetailsModel.RoomGroup.DayGroup>?>(null)
-    val dayGroupStateFlow: StateFlow<List<ScriptDetailsModel.RoomGroup.DayGroup>?> =
+        MutableStateFlow(ScriptDetailsRoomGroupDayGroupList(null))
+    val dayGroupStateFlow: StateFlow<ScriptDetailsRoomGroupDayGroupList> =
         _dayGroupStateFlow.asStateFlow()
 
     private val _settingGroupStateFlow =
-        MutableStateFlow<List<ScriptDetailsModel.RoomGroup.DayGroup.Setting>?>(null)
-    val settingGroupStateFlow: StateFlow<List<ScriptDetailsModel.RoomGroup.DayGroup.Setting>?> =
+        MutableStateFlow(ScriptDetailsRoomGroupDayGroupSettingList(null))
+    val settingGroupStateFlow: StateFlow<ScriptDetailsRoomGroupDayGroupSettingList> =
         _settingGroupStateFlow.asStateFlow()
 
+    fun onNewScriptDetail() {
+        CoroutineScope(Dispatchers.IO).launch {
+            saveScriptDetailsUseCase.execute(
+                ScriptDetailsModel(
+                    did = 0,
+                    name = _nameStateFlow.value,
+                    roomGroups = listOf()
+                ),
+                id = _roomGroupListStateFlow.value.list?.size ?: 0,
+            )
+            indexRoomGroupStateFlow.value = _roomGroupListStateFlow.value.list?.size ?: 0
+            insertGeneralScript(_nameStateFlow.value, indexRoomGroupStateFlow.value)
+        }
+    }
 
     fun onNameChanged(name: String) {
         _nameStateFlow.value = name
     }
 
-    fun changeRids(rids: List<Int>) = _roomGroupStateFlow.update { roomGroups ->
-        roomGroups?.mapIndexed { i, it ->
-            if (indexRoomGroupStateFlow.value == i) it.copy(rIDs = rids) else it
+    fun onTimeChanged(time: String) {
+        _timeStateFlow.value = time
+    }
+
+    fun changeRids(rids: List<Int>) {
+        CoroutineScope(Dispatchers.IO).launch {
+            _roomGroupListStateFlow.value.let { scriptDetailsList ->
+                scriptDetailsList.list?.forEachIndexed { i, it ->
+                    if (it.name == _nameStateFlow.value) {
+                        val roomGroups = mutableListOf<ScriptDetailsModel.RoomGroup>()
+                        it.roomGroups.forEachIndexed { index, roomGroup ->
+                            if (index != indexDayGroupStateFlow.value) roomGroups.add(roomGroup)
+                            else {
+                                roomGroups.add(
+                                    ScriptDetailsModel.RoomGroup(
+                                        dayGroups = listOf(),
+                                        rIDs = rids,
+                                    )
+                                )
+                            }
+                        }
+                        if (it.roomGroups.size == indexDayGroupStateFlow.value) roomGroups.add(
+                            ScriptDetailsModel.RoomGroup(
+                                dayGroups = listOf(),
+                                rIDs = rids,
+                            )
+                        )
+                        it.roomGroups = roomGroups
+                        updateScriptDetailsUseCase.execute(
+                            it,
+                            id = i,
+                        )
+                    }
+                }
+            }
         }
     }
 
-    fun daysChanged(days: List<Int>) = _dayGroupStateFlow.update { dayGroups ->
-        val list = mutableListOf(
-            ScriptDetailsModel.RoomGroup.DayGroup(
-                days = days,
-                settings = listOf()
+    fun daysChanged(days: List<Int>) {
+        CoroutineScope(Dispatchers.IO).launch {
+            _roomGroupStateFlow.value.let {
+                it.list?.forEach{ rG ->
+                    if (rG.rIDs == it.list[indexDayGroupStateFlow.value].rIDs) {
+                        val dayGroups = mutableListOf<ScriptDetailsModel.RoomGroup.DayGroup>()
+                        rG.dayGroups.forEachIndexed { _, dayGroup ->
+                            // проблема с индексом indexSettingGroupStateFlow
+                            dayGroups.add(dayGroup)
+                        }
+                        dayGroups.add(
+                            ScriptDetailsModel.RoomGroup.DayGroup(
+                                days = days,
+                                settings = listOf(),
+                            )
+                        )
+                        if (dayGroups.size == indexSettingGroupStateFlow.value) dayGroups.add(
+                            ScriptDetailsModel.RoomGroup.DayGroup(
+                                days = days,
+                                settings = listOf(),
+                            )
+                        )
+                        _roomGroupListStateFlow.value.let { scriptDetailsList ->
+                            scriptDetailsList.list?.forEachIndexed { i, it ->
+                                if (it.name == _nameStateFlow.value) {
+                                    val roomGroups = mutableListOf<ScriptDetailsModel.RoomGroup>()
+                                    it.roomGroups.forEachIndexed { index, roomGroup ->
+                                        if (index != indexDayGroupStateFlow.value) roomGroups.add(roomGroup)
+                                        else {
+                                            roomGroups.add(
+                                                ScriptDetailsModel.RoomGroup(
+                                                    dayGroups = dayGroups,
+                                                    rIDs = rG.rIDs,
+                                                )
+                                            )
+                                        }
+                                    }
+                                    if (it.roomGroups.size == indexDayGroupStateFlow.value) roomGroups.add(
+                                        ScriptDetailsModel.RoomGroup(
+                                            dayGroups = dayGroups,
+                                            rIDs = rG.rIDs,
+                                        )
+                                    )
+                                    it.roomGroups = roomGroups
+                                    updateScriptDetailsUseCase.execute(
+                                        it,
+                                        id = i,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        _dayGroupStateFlow.update { dayGroups ->
+            val list = mutableListOf(
+                ScriptDetailsModel.RoomGroup.DayGroup(
+                    days = days,
+                    settings = listOf()
+                )
             )
-        )
-        if (dayGroups != null) {
-            list.addAll(dayGroups)
+            dayGroups.list?.let { list.addAll(it) }
+            ScriptDetailsRoomGroupDayGroupList(list.toList())
         }
-        list.toList()
     }
 
-    fun timeChanged(time: String) = _settingsStateFlow.update {
-        it.copy(time = time)
+    fun settingsChanged(
+        co2: Int,
+        dontUse: List<Any>,
+        hum: Int,
+        mustUse: List<Any>,
+        mute: Int,
+        temp: Int,
+        atHome: Int,
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            _dayGroupStateFlow.value.let { dayGroupList ->
+                dayGroupList.list?.forEach { dayGroup ->
+                    if (dayGroup.days == dayGroupList.list[indexSettingGroupStateFlow.value].days) {
+                        val settings =
+                            mutableListOf<ScriptDetailsModel.RoomGroup.DayGroup.Setting>()
+                        dayGroup.settings.forEachIndexed { i, item ->
+                            if (i != indexArgumentsStateFlow.value) settings.add(item)
+                            else settings.add(
+                                ScriptDetailsModel.RoomGroup.DayGroup.Setting(
+                                    atHome = atHome,
+                                    time = _timeStateFlow.value,
+                                    co2 = co2,
+                                    dontUse = dontUse,
+                                    hum = hum,
+                                    mustUse = mustUse,
+                                    mute = mute,
+                                    temp = temp,
+                                )
+                            )
+                        }
+                        if (dayGroup.settings.size == indexArgumentsStateFlow.value) settings.add(
+                            ScriptDetailsModel.RoomGroup.DayGroup.Setting(
+                                atHome = atHome,
+                                time = _timeStateFlow.value,
+                                co2 = co2,
+                                dontUse = dontUse,
+                                hum = hum,
+                                mustUse = mustUse,
+                                mute = mute,
+                                temp = temp,
+                            )
+                        )
+                        _roomGroupStateFlow.value.let { roomGroupList ->
+                            roomGroupList.list?.forEach { rG ->
+                                if (rG.rIDs == roomGroupList.list[indexDayGroupStateFlow.value].rIDs) {
+                                    val dayGroups = mutableListOf<ScriptDetailsModel.RoomGroup.DayGroup>()
+                                    rG.dayGroups.forEachIndexed { index, dayGroup ->
+                                        if (index != indexSettingGroupStateFlow.value) dayGroups.add(dayGroup)
+                                        else dayGroups.add(
+                                            ScriptDetailsModel.RoomGroup.DayGroup(
+                                                days = dayGroup.days,
+                                                settings = settings,
+                                            )
+                                        )
+                                    }
+                                    if (dayGroups.size == indexSettingGroupStateFlow.value) dayGroups.add(
+                                        ScriptDetailsModel.RoomGroup.DayGroup(
+                                            days = dayGroup.days,
+                                            settings = settings,
+                                        )
+                                    )
+                                    _roomGroupListStateFlow.value.let { scriptDetailsList ->
+                                        scriptDetailsList.list?.forEachIndexed { i, it ->
+                                            if (it.name == _nameStateFlow.value) {
+                                                val roomGroups = mutableListOf<ScriptDetailsModel.RoomGroup>()
+                                                it.roomGroups.forEachIndexed { index, roomGroup ->
+                                                    if (index != indexDayGroupStateFlow.value) roomGroups.add(roomGroup)
+                                                    else roomGroups.add(
+                                                        ScriptDetailsModel.RoomGroup(
+                                                            dayGroups = dayGroups,
+                                                            rIDs = rG.rIDs,
+                                                        )
+                                                    )
+                                                }
+                                                if (it.roomGroups.size == indexDayGroupStateFlow.value) roomGroups.add(
+                                                    ScriptDetailsModel.RoomGroup(
+                                                        dayGroups = dayGroups,
+                                                        rIDs = rG.rIDs,
+                                                    )
+                                                )
+                                                it.roomGroups = roomGroups
+                                                updateScriptDetailsUseCase.execute(
+                                                    it,
+                                                    id = i,
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        _settingGroupStateFlow.update { setGroups ->
+            val list = mutableListOf(
+                ScriptDetailsModel.RoomGroup.DayGroup.Setting(
+                    atHome = atHome,
+                    time = _timeStateFlow.value,
+                    co2 = co2,
+                    dontUse = dontUse,
+                    hum = hum,
+                    mustUse = mustUse,
+                    mute = mute,
+                    temp = temp,
+                )
+            )
+            setGroups.list?.let { list.addAll(it) }
+            ScriptDetailsRoomGroupDayGroupSettingList(list.toList())
+        }
     }
 
-//    fun updateDayGroup() {
-//        _dayGroupStateFlow?.update {
-//            it.copy(settings = listOf(_settingsStateFlow.value))
-//        }
-//    }
-//
-//    fun updateRoomGroup() {
-//        _roomGroupStateFlow?.update {
-//            it.copy(dayGroups = listOf(_dayGroupStateFlow.value))
-//        }
-//    }
+    fun clearSettingGroupStateFlow() {
+        _settingGroupStateFlow.update { _ ->
+            ScriptDetailsRoomGroupDayGroupSettingList(null)
+        }
+    }
 
     fun getListOfScripts() {
         CoroutineScope(Dispatchers.IO).launch {
@@ -108,17 +322,38 @@ class ScriptListViewModel @Inject constructor(
         }
     }
 
-    fun getListOfScriptsTest() {
+    fun getUpdate() {
         CoroutineScope(Dispatchers.IO).launch {
-            _scripts.value = arrayListOf(
-                Script(scId = "0", name = "test", isCurrent = true),
-                Script(scId = "1", name = "script", isCurrent = false),
-                Script(scId = "2", name = "script", isCurrent = false),
-                Script(scId = "3", name = "test", isCurrent = false),
-                Script(scId = "4", name = "script", isCurrent = false),
-                Script(scId = "5", name = "test", isCurrent = false),
+            updateScriptDetailsUseCase.execute(
+                ScriptDetailsModel(
+                    // Random().nextInt(10000 - 1) + 1,
+                    100,
+                    "update",
+                    listOf(),
+                ),
+                id = 100,
             )
         }
+    }
+
+    private suspend fun insertGeneralScript(name: String, scId: Int) {
+        insertGeneralScriptInfoUseCase.execute(
+            ScriptGeneralInfoDbModel(
+                isCurrent = false,
+                name = name,
+                scId = scId.toString(),
+            )
+        )
+    }
+
+    fun nameRoomIds(ids: List<Int>?): String {
+        var name = ""
+        _roomsStateFlow.value?.forEach { room ->
+            ids?.forEach { id ->
+                if (id == room.rId) name += room.name + " "
+            }
+        }
+        return name
     }
 
     fun getRooms() {
@@ -131,80 +366,49 @@ class ScriptListViewModel @Inject constructor(
 
     fun getRoomGroupList() {
         CoroutineScope(Dispatchers.IO).launch {
-            getRoomGroupsUseCase.execute().collect {
-                _roomGroupListStateFlow.update { it }
-                _roomGroupListStateFlow.value?.let { list ->
-                    _roomGroupStateFlow.update { list[indexRoomGroupStateFlow.value].roomGroups }
-                }
-                _roomGroupStateFlow.value?.let { roomGroup ->
-                    _dayGroupStateFlow.update { roomGroup[indexDayGroupStateFlow.value].dayGroups }
-                }
-                _dayGroupStateFlow.value?.let { dayGroup ->
-                    _settingGroupStateFlow.update { dayGroup[indexSettingGroupStateFlow.value].settings }
-                }
-            }
-        }
-    }
-
-    fun getRoomGroupListTest() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val test = listOf(
-                ScriptDetailsModel(
-                    0, "asd", listOf(
-                        ScriptDetailsModel.RoomGroup(
-                            dayGroups = listOf(
-                                ScriptDetailsModel.RoomGroup.DayGroup(
-                                    days = listOf(1, 2, 3),
-                                    settings = listOf(
-                                        ScriptDetailsModel.RoomGroup.DayGroup.Setting(
-                                            atHome = 0,
-                                            co2 = 100,
-                                            dontUse = listOf(),
-                                            hum = 400,
-                                            mustUse = listOf(),
-                                            mute = 1,
-                                            temp = 23,
-                                            time = "14:00"
-                                        ),
-                                    )
-                                ),
-                                ScriptDetailsModel.RoomGroup.DayGroup(
-                                    days = listOf(4, 5, 6),
-                                    settings = listOf()
-                                )
-                            ),
-                            rIDs = listOf(10, 20, 30)
-                        ),
-                        ScriptDetailsModel.RoomGroup(
-                            dayGroups = listOf(),
-                            rIDs = listOf(40, 50, 60)
+            getRoomGroupsUseCase.execute().collect { scriptDetailsList ->
+                _roomGroupListStateFlow.update { it.copy(list = scriptDetailsList) }
+                _roomGroupStateFlow.update {
+                    _roomGroupListStateFlow.value.let { list ->
+                        if (list.list?.isNotEmpty() == true && list.list.size > indexRoomGroupStateFlow.value) it.copy(
+                            list = list.list[indexRoomGroupStateFlow.value].roomGroups
                         )
-                    )
-                )
-            )
-
-            getRoomGroupsUseCase.execute().collect { _ ->
-                _roomGroupListStateFlow.update {
-                    test
-                }
-                _roomGroupListStateFlow.value?.let { _ ->
-                    _roomGroupStateFlow.update {
-                        test[indexRoomGroupStateFlow.value].roomGroups
+                        else it
                     }
                 }
-                _roomGroupStateFlow.value?.let { _ ->
-                    _dayGroupStateFlow.update {
-                        test[indexRoomGroupStateFlow.value].roomGroups[indexDayGroupStateFlow.value].dayGroups
+                _dayGroupStateFlow.update {
+                    _roomGroupStateFlow.value.let { roomGroup ->
+                        if (roomGroup.list?.isNotEmpty() == true && roomGroup.list.size > indexDayGroupStateFlow.value) it.copy(
+                            list = roomGroup.list[indexDayGroupStateFlow.value].dayGroups
+                        )
+                        else it
                     }
                 }
-                _dayGroupStateFlow.value?.let { _ ->
-                    _settingGroupStateFlow.update { test[indexRoomGroupStateFlow.value].roomGroups[indexDayGroupStateFlow.value].dayGroups[indexSettingGroupStateFlow.value].settings }
+                _settingGroupStateFlow.update {
+                    _dayGroupStateFlow.value.let { dayGroup ->
+                        if (dayGroup.list?.isNotEmpty() == true && dayGroup.list.size > indexSettingGroupStateFlow.value) it.copy(
+                            list = dayGroup.list[indexSettingGroupStateFlow.value].settings
+                        )
+                        else it
+                    }
                 }
             }
         }
-    }
-
-    fun getScript(index: String): RoomGroup? {
-        return null
     }
 }
+
+data class ScriptDetailList(
+    val list: List<ScriptDetailsModel>?
+)
+
+data class ScriptDetailsRoomGroupList(
+    val list: List<ScriptDetailsModel.RoomGroup>?
+)
+
+data class ScriptDetailsRoomGroupDayGroupList(
+    val list: List<ScriptDetailsModel.RoomGroup.DayGroup>?
+)
+
+data class ScriptDetailsRoomGroupDayGroupSettingList(
+    val list: List<ScriptDetailsModel.RoomGroup.DayGroup.Setting>?
+)

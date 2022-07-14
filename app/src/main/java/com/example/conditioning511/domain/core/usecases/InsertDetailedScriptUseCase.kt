@@ -7,8 +7,8 @@ class InsertDetailedScriptUseCase @Inject constructor(
     private val repository: @JvmSuppressWildcards RoomDbRepository
 ) {
 
-    suspend fun execute(script: String) {
-        return repository.insertDetailedScript(script)
+    suspend fun execute(script: String, id: Int) {
+        return repository.insertDetailedScript(script, id)
     }
 
 }

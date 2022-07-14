@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -21,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,6 +28,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.conditioning511.data.core.models.ScriptDetailsModel
 import com.example.conditioning511.presentation.script_list.ui.add_script_ui.ChooseDatesDialog
+import com.example.conditioning511.presentation.script_list.ui.add_script_ui.getDayString
 import com.example.conditioning511.presentation.script_list.viewmodels.ScriptListViewModel
 import kotlin.math.roundToInt
 
@@ -37,7 +38,8 @@ fun DateGroupsScreen(viewModel: ScriptListViewModel, navController: NavHostContr
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     val index = viewModel.indexDayGroupStateFlow.collectAsState().value
-    val roomName = viewModel.roomGroupStateFlow.collectAsState().value?.get(index)?.rIDs.toString()
+    val rG = viewModel.roomGroupStateFlow.collectAsState().value
+    val roomName = viewModel.nameRoomIds(rG.list?.get(index)?.rIDs)
     val dayGroups = viewModel.dayGroupStateFlow.collectAsState().value
     ChooseDatesDialog(openChooseDatesDialog, screenWidth, viewModel, null)
     Column(
@@ -52,10 +54,11 @@ fun DateGroupsScreen(viewModel: ScriptListViewModel, navController: NavHostContr
                 text = roomName,
                 color = Color.Black,
                 fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(vertical = 20.dp)
             )
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                dayGroups?.let { dayGroups ->
+                dayGroups.list?.let { dayGroups ->
                     itemsIndexed(dayGroups) { index, it ->
                         DateGroupsItem(it, navController, viewModel, index)
                     }
@@ -90,6 +93,10 @@ fun DateGroupsItem(
     val swipeableState = rememberSwipeableState(1)
     val sizePx = with(LocalDensity.current) { squareSize.toPx() }
     val anchors = mapOf(0f to 0, sizePx to 1) // Maps anchor points (in px) to states
+    var roomName = ""
+    it.days.forEach {
+        roomName += (getDayString(it) + " ")
+    }
 
     Box(
         modifier = Modifier
@@ -116,7 +123,7 @@ fun DateGroupsItem(
                     .height(70.dp)
             ) {
                 Text(
-                    it.days.toString(),
+                    roomName,
                     color = Color.Black,
                     fontSize = 20.sp,
                     modifier = Modifier.offset(x = -(20).dp)

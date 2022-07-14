@@ -1,13 +1,12 @@
 package com.example.conditioning511.data.script_list.repositories
 
 import com.example.conditioning511.data.core.models.ScriptDetailsModel
+import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
 import com.example.conditioning511.data.script_list.storage.ScriptStorageDatabase
 import com.example.conditioning511.domain.rooms.models.Room
 import com.example.conditioning511.domain.script_list.models.Script
 import com.example.conditioning511.domain.script_list.repositories.ScriptListRepository
-import com.example.conditioning511.presentation.script_list.viewmodels.ScriptListViewModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -31,8 +30,19 @@ class ScriptListRepositoryImpl @Inject constructor (
         return scriptStorageDatabase.getRooms()
     }
 
+    override suspend fun insertRooms(rooms: List<Room>) {
+        scriptStorageDatabase.insertRooms(rooms)
+    }
+
     override suspend fun getRoomGroups(): Flow<List<ScriptDetailsModel>> {
         return scriptStorageDatabase.getRoomGroups()
     }
 
+    override suspend fun insertScriptGeneral(script: ScriptGeneralInfoDbModel) {
+        scriptStorageDatabase.insertScripInfo(script)
+    }
+
+    override suspend fun clearDatabase() {
+        scriptStorageDatabase.clearDatabase()
+    }
 }

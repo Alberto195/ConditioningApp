@@ -1,15 +1,21 @@
 package com.example.conditioning511.presentation.core.ui
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.conditioning511.R
 import com.example.conditioning511.presentation.bottom_bar.ui.BottomBarScreen
 import com.example.conditioning511.presentation.bottom_bar.ui.BottomNavGraph
 import com.example.conditioning511.presentation.rooms.viewmodels.RoomsScreenViewModel
@@ -37,7 +43,7 @@ fun BottomBar(navController: NavHostController, bottomBarVisibility: MutableStat
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     if (bottomBarVisibility.value) {
-        BottomNavigation(contentColor = Color(0xFFBFD4E4), backgroundColor = Color(0xFFDDEAF3)) {
+        BottomNavigation(contentColor = Color(0xFF000000), backgroundColor = Color(0xFFFFFFFF)) {
             screens.forEach { screen ->
                 AddItem(screen = screen, currentDestination = currentDestination, navController = navController)
             }
@@ -57,8 +63,9 @@ fun RowScope.AddItem(
         },
         icon = { 
             Icon(
-                imageVector = screen.icon,
-                contentDescription = "Navigation Icon"
+                painterResource(id = screen.icon),
+                contentDescription = "Navigation Icon",
+                modifier = Modifier.size(20.dp)
             )
         },
         selected = currentDestination?.hierarchy?.any {

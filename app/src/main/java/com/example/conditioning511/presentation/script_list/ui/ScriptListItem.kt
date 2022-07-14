@@ -43,7 +43,7 @@ fun ScriptListItem(
                     .padding(vertical = 4.dp, horizontal = 28.dp)
                     .size(56.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFF2F7F9))
+                    .background(Color(0xFFE5E5E5))
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -61,14 +61,14 @@ fun ScriptListItem(
                         text = script.name ?: "",
                         fontSize = 18.sp,
                         fontWeight = Bold,
-                        color = Color(0xFF7F8B90),
+                        color = Color.Black,
                         modifier = Modifier
                             .padding(horizontal = 1.dp, vertical = 1.dp)
                     )
                     Text(
                         text = script.isCurrent.toString(),
                         fontSize = 18.sp,
-                        color = Color(0xFF7F8B90),
+                        color = Color.Black,
                         modifier = Modifier
                             .padding(horizontal = 1.dp, vertical = 8.dp)
                     )

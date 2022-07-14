@@ -9,11 +9,11 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun colorText(): TextFieldColors {
     return TextFieldDefaults.textFieldColors(
-        textColor = Color(0xFF9DB8CC),
-        cursorColor = Color(0xFF9DB8CC),
-        leadingIconColor = Color(0xFF9DB8CC),
-        trailingIconColor = Color(0xFF9DB8CC),
-        backgroundColor = Color(0xFFF2F7F9),
+        textColor = Color.Black,
+        cursorColor = Color.Black,
+        leadingIconColor = Color.Black,
+        trailingIconColor = Color.Black,
+        backgroundColor = Color.White,
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
         disabledIndicatorColor = Color.Transparent

@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 // TODO table for roomGroups
 @Entity(tableName = "script_details")
 data class ScriptDetailsDbJsonModel(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     val id: Int = 0,
     @ColumnInfo
     val script: String

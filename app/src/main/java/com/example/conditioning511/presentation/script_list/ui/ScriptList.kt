@@ -40,7 +40,7 @@ fun ScriptList(
     viewModel: ScriptListViewModel,
     bottomBarVisibility: MutableState<Boolean>
 ) {
-    viewModel.getListOfScriptsTest()
+    viewModel.getListOfScripts()
     val textState = remember { mutableStateOf(TextFieldValue("")) }
     val scripts = viewModel.scripts.collectAsState().value
     val filteredScripts: List<Script>
@@ -77,7 +77,7 @@ fun ScriptList(
             sheetState = sheetState,
             sheetContent = {
                 SheetContent(
-                    index = roomIndex.value,
+                    name = textField.value.text,
                     coroutineScope = coroutineScope,
                     deleteState = deleteState,
                     navController,
@@ -96,7 +96,7 @@ fun ScriptList(
                             openDialog.value = true
                         },
                         contentColor = Color.White,
-                        backgroundColor = Color(0xFF32C5FF),
+                        backgroundColor = Color(0xFF6C95FF),
                         shape = RoundedCornerShape(40.dp)
                     ) {
                         Icon(
@@ -111,7 +111,7 @@ fun ScriptList(
                 ) {
                     SearchView(textState)
                     if (filteredScripts.isEmpty()) ScriptsNotFound()
-                    else if (filteredScripts.isNotEmpty()) ResultTextWidget()
+                    // else if (filteredScripts.isNotEmpty()) ResultTextWidget()
                     LazyColumn(modifier = Modifier.fillMaxWidth()) {
                         items(filteredScripts) { filteredScript ->
                             ScriptListItem(
@@ -168,7 +168,7 @@ fun ScriptsNotFound() {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SheetContent(
-    index: String,
+    name: String,
     coroutineScope: CoroutineScope,
     deleteState: ModalBottomSheetState,
     navController: NavController,
@@ -186,16 +186,9 @@ fun SheetContent(
                 .fillMaxWidth()
                 .padding(22.dp)
                 .clickable {
-                    val moshi = Moshi
-                        .Builder()
-                        .addLast(KotlinJsonAdapterFactory())
-                        .build()
-                    val jsonAdapter = moshi
-                        .adapter(RoomGroup::class.java)
-                        .lenient()
-                    val script = jsonAdapter.toJson(viewModel.getScript(index))
+                    viewModel.onNameChanged(name)
                     navController.navigate(
-                        "script/{details}".replace("{details}", script)
+                        "script/room_groups"
                     )
                 },
             horizontalArrangement = Arrangement.Start,

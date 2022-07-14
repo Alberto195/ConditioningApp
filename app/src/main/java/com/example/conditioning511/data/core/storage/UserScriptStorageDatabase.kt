@@ -6,7 +6,9 @@ import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfo
 interface UserScriptStorageDatabase {
     suspend fun setScriptGeneralInfo(scripts: List<ScriptGeneralInfoDbModel>?)
 
-    suspend fun insertDetailedScript(script: String?)
+    suspend fun insertDetailedScript(script: String?, id: Int)
+
+    suspend fun updateDetailedScript(script: String?, id: Int)
 
     suspend fun insertRoom(rooms: List<RoomDBModel>)
 }

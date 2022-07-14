@@ -1,8 +1,6 @@
 package com.example.conditioning511.presentation.script_list.ui.room_groups
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
@@ -15,39 +13,39 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.DefaultStrokeLineWidth
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import com.example.conditioning511.data.core.models.ScriptDetailsModel
 import com.example.conditioning511.presentation.script_list.ui.add_script_ui.ChooseDevicesDialog
+import com.example.conditioning511.presentation.script_list.ui.add_script_ui.getDayString
 import com.example.conditioning511.presentation.script_list.viewmodels.ScriptListViewModel
 import kotlin.math.roundToInt
 
 @Composable
 fun SettingsGroupScreen(viewModel: ScriptListViewModel, navController: NavHostController) {
-    val openChooseSettingsDialog = remember { mutableStateOf(false) }
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp
-
+    viewModel.getUpdate()
     val index = viewModel.indexSettingGroupStateFlow.collectAsState().value
-    val roomName = viewModel.dayGroupStateFlow.collectAsState().value?.get(index)?.days.toString()
+    var roomName = ""
+    viewModel.dayGroupStateFlow.collectAsState().value.list?.get(index)?.days?.forEach {
+        roomName += (getDayString(it) + " ")
+    }
     val settingsGroup = viewModel.settingGroupStateFlow.collectAsState().value
 
-    ChooseDevicesDialog(openChooseSettingsDialog, screenWidth)
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
@@ -63,9 +61,9 @@ fun SettingsGroupScreen(viewModel: ScriptListViewModel, navController: NavHostCo
                 modifier = Modifier.padding(vertical = 20.dp)
             )
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                settingsGroup?.let { setsGroups ->
+                settingsGroup.list?.let { setsGroups ->
                     itemsIndexed(setsGroups) { index, it ->
-                        SettingsGroupsItem(it)
+                        SettingsGroupsItem(index, it, viewModel, navController)
                     }
                 }
             }
@@ -76,7 +74,8 @@ fun SettingsGroupScreen(viewModel: ScriptListViewModel, navController: NavHostCo
                 .padding(horizontal = 20.dp, vertical = 90.dp)
                 .height(50.dp),
             onClick = {
-                openChooseSettingsDialog.value = true
+                viewModel.indexArgumentsStateFlow.value = viewModel.settingGroupStateFlow.value.list?.size ?: 0
+                navController.navigate("script/arguments")
             },
             shape = RoundedCornerShape(50.dp),
             colors = ButtonDefaults.buttonColors(backgroundColor = Color.Gray),
@@ -89,7 +88,10 @@ fun SettingsGroupScreen(viewModel: ScriptListViewModel, navController: NavHostCo
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SettingsGroupsItem(
+    i: Int,
     it: ScriptDetailsModel.RoomGroup.DayGroup.Setting,
+    viewModel: ScriptListViewModel,
+    navController: NavHostController,
 ) {
     val squareSize = 90.dp
     val swipeableState = rememberSwipeableState(1)
@@ -141,7 +143,7 @@ fun SettingsGroupsItem(
                             textAlign = TextAlign.Center,
                         )
                         Row(
-                            horizontalArrangement = Arrangement.SpaceAround,
+                            horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -225,7 +227,8 @@ fun SettingsGroupsItem(
                     Icon(Icons.Default.Edit, "исправить", modifier = Modifier
                         .size(25.dp)
                         .clickable {
-
+                            viewModel.indexSettingGroupStateFlow.value = i
+                            navController.navigate("script/arguments")
                         })
                     Icon(
                         Icons.Default.Delete,
@@ -245,7 +248,7 @@ fun SettingsGroupsItem(
 @Preview
 @Composable
 fun SettingPreview() {
-    SettingsGroupsItem(
+/*    SettingsGroupsItem(
         ScriptDetailsModel.RoomGroup.DayGroup.Setting(
             atHome = 0,
             co2 = 100,
@@ -256,5 +259,5 @@ fun SettingPreview() {
             temp = 23,
             time = "14:00"
         )
-    )
+    )*/
 }

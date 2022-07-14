@@ -6,7 +6,6 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface RoomListApi {
-
     @GET("app/datchik")
     suspend fun getAllRooms(
         @Query("did") sensorId: Int?,

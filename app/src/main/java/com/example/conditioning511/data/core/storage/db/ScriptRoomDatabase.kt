@@ -8,7 +8,7 @@ import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfo
 
 @Database(
     entities = [ScriptGeneralInfoDbModel::class, ScriptDetailsDbJsonModel::class, RoomDBModel::class],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 abstract class ScriptRoomDatabase : RoomDatabase() {

@@ -14,10 +14,22 @@ class UserScriptStorageDatabaseImpl @Inject constructor(
         scripts?.let { roomDao.insertAllGeneralInfoScripts(it) }
     }
 
-    override suspend fun insertDetailedScript(script: String?) {
+    override suspend fun insertDetailedScript(script: String?, id: Int) {
         script?.let {
             roomDao.insertScript(
                 ScriptDetailsDbJsonModel(
+                    id = id,
+                    script = it
+                )
+            )
+        }
+    }
+
+    override suspend fun updateDetailedScript(script: String?, id: Int) {
+        script?.let {
+            roomDao.updateScript(
+                ScriptDetailsDbJsonModel(
+                    id = id,
                     script = it
                 )
             )

@@ -90,7 +90,7 @@ private fun HoursNumberPicker1() {
 @Composable
 private fun HoursNumberPicker2() {
     var state by remember { mutableStateOf<Hours>(AMPMHours(9, 43, AMPMHours.DayTime.PM)) }
-    com.example.conditioning511.presentation.script_list.ui.time_picker.HoursNumberPicker(
+    HoursNumberPicker(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp),

@@ -2,6 +2,7 @@ package com.example.conditioning511.data.script_list.storage.db
 
 import com.example.conditioning511.data.core.models.ScriptDetailsModel
 import com.example.conditioning511.data.core.storage.db.models.RoomDBModel
+import com.example.conditioning511.data.core.storage.db.models.ScriptDetailsDbJsonModel
 import com.example.conditioning511.data.core.storage.db.models.ScriptGeneralInfoDbModel
 import com.example.conditioning511.data.script_list.storage.ScriptStorageDatabase
 import com.example.conditioning511.domain.rooms.models.Room
@@ -19,10 +20,33 @@ class ScriptStorageDatabaseImpl @Inject constructor(
         return roomDao.getScripts()
     }
 
+    override suspend fun insertScripInfo(scriptGeneralInfo: ScriptGeneralInfoDbModel) {
+        roomDao.insertScript(scriptGeneralInfo)
+    }
+
     override suspend fun getRooms(): Flow<List<Room>> {
         return roomDao.getRooms().map {
             it.mapToRoomList()
         }
+    }
+
+    override suspend fun insertRooms(list: List<Room>) {
+        roomDao.insertRooms(list.map {
+            RoomDBModel(
+                rId = it.rId,
+                date = it.date,
+                temp = it.temp,
+                temp_value = it.temp_value,
+                co2 = it.co2,
+                hum = it.hum,
+                people = it.people,
+                name = it.name
+            )
+        })
+    }
+
+    override suspend fun clearDatabase() {
+        roomDao.clearDatabase()
     }
 
     override suspend fun getRoomGroups(): Flow<List<ScriptDetailsModel>> {
